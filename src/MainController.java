@@ -9,6 +9,7 @@ public class MainController {
 
     public void showMainMenu(){
         boolean active = true;
+        User user;
 
         while(active) {
             System.out.println("======Main Meny=====");
@@ -21,7 +22,8 @@ public class MainController {
             switch (choice) {
                 case 1:{
                     UserController userController = new UserController();
-                    userController.showMenu(findUser());
+                    user = findUser();
+                    userController.showMenu(user);
                     break;
                 }
                 case 2:{
