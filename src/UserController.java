@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class UserController {
     int userId;
-    UserService userService = new UserService;
+    UserService userService = new UserService();
     Scanner scanner = new Scanner(System.in);
 
     public UserController(int userId) {

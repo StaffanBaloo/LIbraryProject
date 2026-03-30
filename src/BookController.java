@@ -121,14 +121,14 @@ public class BookController {
 
     void showDetailedInfo(){
         System.out.println("Please enter book ID:");
-        int searchId = Integer.parseInt(scanner.nextLine();
+        int searchId = Integer.parseInt(scanner.nextLine());
         Book book = bookService.getBookById(searchId);
         System.out.println(book.toString());
     }
 
     void borrowBook(){
         System.out.println("Please enter book ID:");
-        int bookId = Integer.parseInt(scanner.nextLine();
+        int bookId = Integer.parseInt(scanner.nextLine());
         try {
             loanService.createLoan(bookId, userId);
         }

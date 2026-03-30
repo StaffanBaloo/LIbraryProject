@@ -10,7 +10,7 @@ public class LoanController {
         this.userId = userId;
     }
 
-    public showMenu(){
+    public void showMenu(){
         boolean active = true;
         while(active) {
             System.out.println("""

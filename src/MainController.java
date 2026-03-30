@@ -17,6 +17,7 @@ public class MainController {
             System.out.println("Are you a:");
             System.out.println("1. User?");
             System.out.println("2. Administrator?");
+            System.out.println("3. Test ANSI");
             System.out.println("0. Exit");
             int choice=Integer.parseInt(scanner.nextLine());
             switch (choice) {
@@ -30,6 +31,11 @@ public class MainController {
                     AdminController adminController = new AdminController();
                     adminController.showMenu();
                     break;
+                }
+                case 3:{
+                    System.out.println(ANSI.bold()+ANSI.color("red") + "This should be bold red"+ANSI.reset());
+                    System.out.println(ANSI.bold() + "bold " + ANSI.noBold() + ANSI.italic() + "italic " + ANSI.noItalic() + ANSI.underline() + "underline " + ANSI.noUnderline() + "default");
+                    System.out.println(ANSI.color("bright_yellow") + "bright yellow " + ANSI.color("blue") + "blue " + ANSI.color("orange") + "orange");
                 }
                 case 0:{
                     active=false;
