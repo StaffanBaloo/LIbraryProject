@@ -6,10 +6,9 @@ public class NoteController {
     NoteService noteService = new NoteService();
     LoanService loanService = new LoanService();
     Scanner scanner = new Scanner(System.in);
-    int userId;
 
-    public NoteController(int userId) {
-        this.userId = userId;
+    public NoteController() {
+
     }
 
     public void showMenu() {
@@ -17,7 +16,7 @@ public class NoteController {
         int unreadNotes;
         while (active){
             System.out.println("Notifications menu");
-            unreadNotes = noteService.getNumberUnreadNotesByUser(userId);
+            unreadNotes = noteService.getNumberUnreadNotesByUser(Main.loggedInUser.getMemberId());
             if(unreadNotes>0){
                 System.out.println("You have "+unreadNotes+ " unread notifications.");
             }
@@ -54,7 +53,7 @@ public class NoteController {
     }
 
     void readOldestUnread(){
-        Note note = noteService.getOldestUnreadByUser(userId);
+        Note note = noteService.getOldestUnreadByUser(Main.loggedInUser.getMemberId());
         System.out.println("Notification type: " + note.getType() +".");
         System.out.println("Sent on: " + note.getSentDate() +".");
         if(!Objects.isNull(note.getLoan())) {
@@ -70,9 +69,9 @@ public class NoteController {
         boolean active = true;
         while (active) {
             System.out.println("Please enter notification ID:");
-            int noteId=Integer.parseInt(scanner.nextLine());
+            int noteId=Integer.parseInt(scanner.nextLine().trim());
             Note note = noteService.getNote(noteId);
-            if (note.getMember().getMemberId() == userId) {
+            if (note.getMember().getMemberId() == Main.loggedInUser.getMemberId()) {
                 System.out.println("Notification type: " + note.getType() +".");
                 System.out.println("Sent on: " + note.getSentDate() +".");
                 if(!Objects.isNull(note.getLoan())) {
@@ -90,9 +89,9 @@ public class NoteController {
     }
 
     void listUnread(){
-        if(noteService.getNumberUnreadNotesByUser(userId)>0){
+        if(noteService.getNumberUnreadNotesByUser(Main.loggedInUser.getMemberId())>0){
             System.out.println("You have the following unread notifications:");
-            ArrayList<Note> notes = noteService.getUnreadNotesByUser(userId);
+            ArrayList<Note> notes = noteService.getUnreadNotesByUser(Main.loggedInUser.getMemberId());
             for (Note note: notes) {
                 System.out.println(note.toString);
             }
@@ -102,9 +101,9 @@ public class NoteController {
     }
 
     void listAll(){
-        if(noteService.getNumberNotesByUser(userId)>0){
+        if(noteService.getNumberNotesByUser(Main.loggedInUser.getMemberId())>0){
             System.out.println("You have the following  notifications:");
-            ArrayList<Note> notes = noteService.getNotesByUser(userId);
+            ArrayList<Note> notes = noteService.getNotesByUser(Main.loggedInUser.getMemberId());
             for (Note note: notes) {
                 System.out.println(note.toString);
             }

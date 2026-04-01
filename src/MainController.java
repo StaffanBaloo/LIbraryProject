@@ -26,8 +26,8 @@ public class MainController {
                     break;
                 }
                 case 2:{
-                    userId = findUser();
-                    UserController userController = new UserController(userId);
+                    login();
+                    UserController userController = new UserController;
                     userController.showMenu();
                     break;
                 }
@@ -49,20 +49,20 @@ public class MainController {
         }
     }
 
-    public int findUser(){
+    public int login(){
         boolean active = true;
-        int user;
+        User user;
         UserService userService = new UserService();
         EmailValidator emailValidator = EmailValidator.getInstance();
         while(active){
             System.out.println("Please enter your member ID or your e-mail address:");
-            String input=scanner.nextLine();
+            String input=scanner.nextLine().trim();
 
             if (IO.isNumeric (input)){
-                user = userService.getById(Integer.parseInt(input)).getUserId();
+                user = userService.getById(Integer.parseInt(input));
                 active=false;
             } else if (emailValidator.isValid(input)) {
-                user = userService.getByEmail(input).getUserId();
+                user = userService.getByEmail(input);
                 active=false;
             } else {
                 System.out.println("Invalid ID or e-mail address.");

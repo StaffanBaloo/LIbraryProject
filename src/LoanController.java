@@ -4,10 +4,9 @@ import java.util.Scanner;
 public class LoanController {
     LoanService loanService = new LoanService();
     Scanner scanner = new Scanner(System.in);
-    int userId;
 
-    public LoanController(int userId) {
-        this.userId = userId;
+    public LoanController() {
+
     }
 
     public void showMenu(){
@@ -21,7 +20,7 @@ public class LoanController {
                     4. Renew all loans.
                     5. Renew one loan.
                     0. Back.""");
-            int choice=Integer.parseInt(scanner.nextLine());
+            int choice=Integer.parseInt(scanner.nextLine().trim());
             switch (choice){
                 case 1: {
                     showCurrentLoans();
@@ -51,9 +50,9 @@ public class LoanController {
         }
     }
     void showCurrentLoans(){
-        if (loanService.numberOfLoansForUser(userId) >0) {
+        if (loanService.numberOfLoansForUser(Main.loggedInUser.getMemberId()) >0) {
             System.out.println("Your current loans are:");
-            ArrayList<Loan> loans = loanService.getCurrentLoansByUser(userId);
+            ArrayList<Loan> loans = loanService.getCurrentLoansByUser(Main.loggedInUser.getMemberId());
             for (Loan loan : loans) {
                 System.out.println(loan.toString);
             }
@@ -63,11 +62,11 @@ public class LoanController {
     }
 
     void returnAllLoans(){
-        if (loanService.numberOfLoansForUser(userId) >0) {
-            float newFees = loanService.returnAllLoansForUser(userId);
+        if (loanService.numberOfLoansForUser(Main.loggedInUser.getMemberId()) >0) {
+            float newFees = loanService.returnAllLoansForUser(Main.loggedInUser.getMemberId());
             System.out.println("You have returned all your loans.");
             if (newfees > 0) {
-                System.out.println("You have incurred new fees of " + newFees + ".");
+                System.out.println("You have incurred new fees of " + newFees + " kr.");
             }
         }
         else {
@@ -76,11 +75,11 @@ public class LoanController {
     }
 
     void returnLoan(){
-        if (loanService.numberOfLoansForUser(userId) >0) {
+        if (loanService.numberOfLoansForUser(Main.loggedInUser.getMemberId()) >0) {
             System.out.println("Which loan do you wish to return?");
             int loanId = Integer.parseInt(scanner.nextLine());
             try {
-                float newFee = loanService.returnLoan(userId, loanId);
+                float newFee = loanService.returnLoan(Main.loggedInUser.getMemberId(), loanId);
                 System.out.println("You have returned " + loanService.getBookTitleByLoanId(loanId) + ".");
                 if (newFee > 0) {
                     System.out.println("You have incurred a new fee of " + newFee + ".");
@@ -94,8 +93,8 @@ public class LoanController {
         }
     }
     void renewAllLoans(){
-        if (loanService.numberOfLoansForUser(userId) >0){
-            ArrayList<Loan> loans = loanService.getCurrentLoansByUserId(userId);
+        if (loanService.numberOfLoansForUser(Main.loggedInUser.getMemberId()) >0){
+            ArrayList<Loan> loans = loanService.getCurrentLoansByUserId(Main.loggedInUser.getMemberId());
             for(Loan loan : loans){
                 try{
                     loanService.renewLoan(loan.getId());
@@ -112,7 +111,7 @@ public class LoanController {
     }
 
     void renewLoan(){
-        if (loanService.numberOfLoansForUser(userId) >0) {
+        if (loanService.numberOfLoansForUser(Main.loggedInUser.getMemberId()) >0) {
             System.out.println("Which loan do you wish to renew?");
             int loanId = Integer.parseInt(scanner.nextLine());
             try {

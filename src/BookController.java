@@ -6,10 +6,9 @@ public class BookController {
     BookShortDTOService bookShortDTOService = new BookShortDTOService();
     //LoanService loanService = new LoanService();
     Scanner scanner = new Scanner(System.in);
-    int userId;
 
-    public BookController(int userId) {
-        this.userId = userId;
+    public BookController() {
+
     }
 
     public void showMenu(){

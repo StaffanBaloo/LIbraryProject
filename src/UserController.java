@@ -1,12 +1,11 @@
 import java.util.Scanner;
 
 public class UserController {
-    int userId;
     UserService userService = new UserService();
     Scanner scanner = new Scanner(System.in);
 
-    public UserController(int userId) {
-        this.userId = userId;
+    public UserController() {
+
     }
 
     public void showMenu(){
@@ -15,23 +14,23 @@ public class UserController {
         float totalFines;
 
         while (active){
-            System.out.println("Welcome, " + userService.getFullName(userId) + "!");
-            System.out.println("Your membership status is: " + userService.getStatus(userId) + ".");
+            System.out.println("Welcome, " + Main.loggedInUser.getFirstName() + "!");
+            System.out.println("Your membership status is: " + Main.loggedInUser.getStatus() + ".");
 
-            numberUnreadNotes = userService.getNumberUnreadNotes(userId);
+            numberUnreadNotes = userService.getNumberUnreadNotes(Main.loggedInUser.getMemberId());
             if (numberUnreadNotes > 0) {
                 System.out.println("You have " + numberUnreadNotes + " unread notifications.");
             } else {
                 System.out.println("You have no unread notifications.");
             }
 
-            totalFines = userService.getUnpaidFinesTotal(userId);
+            totalFines = userService.getUnpaidFinesTotal(Main.loggedInUser.getMemberId());
             if (totalFines > 0f) {
                 System.out.println("You have " + totalFines + " in unpaid fines.");
             }
 
-            numberLoans = userService.getNumberOfCurrentLoans(userId);
-            numberOverdueLoans = userService.getNumberOfOverdueLoans(userId);
+            numberLoans = userService.getNumberOfCurrentLoans(Main.loggedInUser.getMemberId());
+            numberOverdueLoans = userService.getNumberOfOverdueLoans(Main.loggedInUser.getMemberId());
             if(numberLoans>0){
                 if(numberOverdueLoans>0) {
                     System.out.println("You have " + numberLoans + " loans currently, of which " + numberOverdueLoans + " are overdue.");
@@ -50,17 +49,17 @@ public class UserController {
             choice=Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1: {
-                    BookController bookController = new BookController(userId);
+                    BookController bookController = new BookController();
                     bookController.showMenu();
                     break;
                 }
                 case 2: {
-                    LoanController loanController = new LoanController(userId);
+                    LoanController loanController = new LoanController();
                     loanController.showMenu();
                     break;
                 }
                 case 3: {
-                    NoteController noteController = new NoteController(userId);
+                    NoteController noteController = new NoteController();
                     noteController.showMenu();
                     break;
                 }
