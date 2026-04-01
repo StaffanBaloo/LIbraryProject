@@ -1,14 +1,13 @@
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class User {
 
-    private int id;
+    private int userId;
     private String firstName, lastName, email, membershipType, status;
     private LocalDate membershipDate;
 
-    public User(int id, String firstName, String lastName, String email, String membershipType, String status, LocalDate membershipDate) {
-        this.id = id;
+    public User(int userId, String firstName, String lastName, String email, String membershipType, String status, LocalDate membershipDate) {
+        this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -17,12 +16,12 @@ public class User {
         this.membershipDate = membershipDate;
     }
 
-    public int getId() {
-        return id;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getFirstName() {

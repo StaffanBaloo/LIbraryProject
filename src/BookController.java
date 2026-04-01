@@ -3,7 +3,8 @@ import java.util.Scanner;
 
 public class BookController {
     BookService bookService = new BookService();
-    LoanService loanService = new LoanService();
+    BookShortDTOService bookShortDTOService = new BookShortDTOService();
+    //LoanService loanService = new LoanService();
     Scanner scanner = new Scanner(System.in);
     int userId;
 
@@ -70,24 +71,29 @@ public class BookController {
         }
     }
     void showAllBooks(){
-        ArrayList<BookDTO> bookDTOs = bookDTOService.getAllBookDTOs();
-        for (BookDTO bookDTO : bookDTOs) {
+        ArrayList<BookShortDTO> bookDTOs = bookShortDTOService.getAllBookDTOs();
+        for (BookShortDTO bookDTO : bookDTOs) {
             System.out.println(bookDTO.toString());
         }
     }
 
     void showAvailableBooks(){
-        ArrayList<BookDTO> bookDTOs = bookDTOService.getAllAvailableBookDTOs();
-        for (BookDTO bookDTO : bookDTOs) {
+        ArrayList<BookShortDTO> bookDTOs = bookShortDTOService.getAvailableBookDTOs();
+        for (BookShortDTO bookDTO : bookDTOs) {
             System.out.println(bookDTO.toString());
         }
     }
 
     void findByAuthor(){
+        ArrayList<BookShortDTO> bookDTOs;
         System.out.println("Please enter author:");
         String searchTerm = scanner.nextLine();
-        ArrayList<BookDTO> bookDTOs = bookDTOService.getBooksByAuthor(searchTerm);
-        for (BookDTO bookDTO : bookDTOs) {
+        if (IO.isNumeric(searchTerm)){
+            bookDTOs = bookShortDTOService.getBooksByAuthorId(Integer.parseInt(searchTerm));
+        } else {
+            bookDTOs = bookShortDTOService.getBooksByAuthorName(searchTerm);
+        }
+        for (BookShortDTO bookDTO : bookDTOs) {
             System.out.println(bookDTO.toString());
         }
     }
@@ -95,17 +101,22 @@ public class BookController {
     void findByTitle(){
         System.out.println("Please enter title:");
         String searchTerm = scanner.nextLine();
-        ArrayList<BookDTO> bookDTOs = bookDTOService.getBooksByTitle(searchTerm);
-        for (BookDTO bookDTO : bookDTOs) {
+        ArrayList<BookShortDTO> bookDTOs = bookShortDTOService.getBookDTOsByTitle(searchTerm);
+        for (BookShortDTO bookDTO : bookDTOs) {
             System.out.println(bookDTO.toString());
         }
     }
 
     void findByCategory(){
+        ArrayList<BookShortDTO> bookDTOs;
         System.out.println("Please enter category:");
         String searchTerm = scanner.nextLine();
-        ArrayList<BookDTO> bookDTOs = bookDTOService.getBooksByCategory(searchTerm);
-        for (BookDTO bookDTO : bookDTOs) {
+        if (IO.isNumeric(searchTerm)){
+            bookDTOs = bookShortDTOService.getBooksByCategoryId(Integer.parseInt(searchTerm));
+        } else {
+            bookDTOs = bookShortDTOService.getBooksByCategory(searchTerm);
+        }
+        for (BookShortDTO bookDTO : bookDTOs) {
             System.out.println(bookDTO.toString());
         }
     }
@@ -113,21 +124,22 @@ public class BookController {
     void findByKeyword(){
         System.out.println("Please enter keyword:");
         String searchTerm = scanner.nextLine();
-        ArrayList<BookDTO> bookDTOs = bookDTOService.getBooksByKeyword(searchTerm);
-        for (BookDTO bookDTO : bookDTOs) {
+        ArrayList<BookShortDTO> bookDTOs = bookShortDTOService.getBooksByKeyword(searchTerm);
+        for (BookShortDTO bookDTO : bookDTOs) {
             System.out.println(bookDTO.toString());
         }
     }
 
     void showDetailedInfo(){
         System.out.println("Please enter book ID:");
-        int searchId = Integer.parseInt(scanner.nextLine());
+        int searchId = IO.inputNumber();
         Book book = bookService.getBookById(searchId);
         System.out.println(book.toString());
     }
 
     void borrowBook(){
-        System.out.println("Please enter book ID:");
+        IO.NYI();
+        /*System.out.println("Please enter book ID:");
         int bookId = Integer.parseInt(scanner.nextLine());
         try {
             loanService.createLoan(bookId, userId);
@@ -135,6 +147,6 @@ public class BookController {
         catch (CantCreateLoanException e) {
             System.out.println("You can't borrow book "+ bookId + ".");
             System.out.println(e.getMessage());
-        }
+        }*/
     }
 }

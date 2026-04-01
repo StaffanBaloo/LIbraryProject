@@ -1,7 +1,9 @@
+import java.util.Objects;
 import java.util.Scanner;
 
 public class IO {
-    Scanner scanner = new Scanner(System.in);
+    static Scanner scanner = new Scanner(System.in);
+
     public static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);
@@ -15,19 +17,23 @@ public class IO {
     // Läs in en rad och konvertera den till ett heltal om det går, annars klaga.
     public static int inputNumber() {
         boolean active=true;
+        int result;
         while (active){
             String input = scanner.nextLine();
-            if(input==""){
+            if(Objects.equals(input, "")){
                 active=false;
-                return null;
             }
             else if(isNumeric(input)){
                 active=false;
-                return Integer.parseInt(input);
+                result = Integer.parseInt(input);
             } else{
                 System.out.println("Please enter a number.");
             }
         }
+        return result;
+    }
 
+    public static void NYI(){
+        System.out.println("This function is not yet implemented.");
     }
 }

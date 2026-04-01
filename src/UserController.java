@@ -1,4 +1,3 @@
-import java.util.Objects;
 import java.util.Scanner;
 
 public class UserController {
@@ -31,7 +30,7 @@ public class UserController {
                 System.out.println("You have " + totalFines + " in unpaid fines.");
             }
 
-            numberLoans = userService.getNumberOfLoans(userId);
+            numberLoans = userService.getNumberOfCurrentLoans(userId);
             numberOverdueLoans = userService.getNumberOfOverdueLoans(userId);
             if(numberLoans>0){
                 if(numberOverdueLoans>0) {
@@ -48,7 +47,7 @@ public class UserController {
                     2. Loans menu.
                     3. Read notifications.
                     0. Go back.""");
-            int choice=Integer.parseInt(scanner.nextLine());
+            choice=Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1: {
                     BookController bookController = new BookController(userId);

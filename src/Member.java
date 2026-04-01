@@ -1,12 +1,12 @@
 import java.time.LocalDate;
 
 public class Member {
-    private int id;
+    private int memberId;
     private String firstName, lastName, email, membershipType, status;
     private LocalDate membershipDate;
 
-    public Member(int id, String firstName, String lastName, String email, String membershipType, String status, LocalDate membershipDate) {
-        this.id = id;
+    public Member(int memberId, String firstName, String lastName, String email, String membershipType, String status, LocalDate membershipDate) {
+        this.memberId = memberId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -18,7 +18,7 @@ public class Member {
     @Override
     public String toString() {
         String fullMember = "";
-        fullMember += "id = " + id;
+        fullMember += "id = " + memberId;
         fullMember += " | name = " + firstName + " " + lastName;
         fullMember += " | email = " + email;
         fullMember += " | type = " + membershipType;
@@ -27,12 +27,12 @@ public class Member {
         return fullMember;
     }
 
-    public int getId() {
-        return id;
+    public int getMemberId() {
+        return memberId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setMemberId(int memberId) {
+        this.memberId = memberId;
     }
 
     public String getFirstName() {
