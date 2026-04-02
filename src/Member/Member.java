@@ -1,13 +1,14 @@
+package Member;
+
 import java.time.LocalDate;
 
-public class User {
-
-    private int userId;
+public class Member {
+    private int memberId;
     private String firstName, lastName, email, membershipType, status;
     private LocalDate membershipDate;
 
-    public User(int userId, String firstName, String lastName, String email, String membershipType, String status, LocalDate membershipDate) {
-        this.userId = userId;
+    public Member(int memberId, String firstName, String lastName, String email, String membershipType, String status, LocalDate membershipDate) {
+        this.memberId = memberId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -16,12 +17,24 @@ public class User {
         this.membershipDate = membershipDate;
     }
 
-    public int getUserId() {
-        return userId;
+    @Override
+    public String toString() {
+        String fullMember = "";
+        fullMember += "id = " + memberId;
+        fullMember += " | name = " + firstName + " " + lastName;
+        fullMember += " | email = " + email;
+        fullMember += " | type = " + membershipType;
+        fullMember += " | status = " + status;
+        fullMember += " | joined = " + membershipDate.toString();
+        return fullMember;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public int getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(int memberId) {
+        this.memberId = memberId;
     }
 
     public String getFirstName() {
@@ -70,9 +83,5 @@ public class User {
 
     public void setMembershipDate(LocalDate membershipDate) {
         this.membershipDate = membershipDate;
-    }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
     }
 }

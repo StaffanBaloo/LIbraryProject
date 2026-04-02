@@ -1,3 +1,5 @@
+package Member;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,7 +12,7 @@ public class MemberController {
         boolean active = true;
 
         while (active) {
-            System.out.println("======Member Meny=====");
+            System.out.println("======Member.Member Meny=====");
             System.out.println("1. Show all members");
             System.out.println("0. Back");
             int choice=Integer.parseInt(scanner.nextLine());

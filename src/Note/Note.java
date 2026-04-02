@@ -1,13 +1,18 @@
+package Note;
+
+import Loan.Loan;
+import Member.Member;
+
 import java.time.LocalDate;
 
 public class Note {
-    int noteId;
-    Member member;
-    Loan loan;
-    String type;
-    String message;
-    LocalDate sentDate;
-    boolean isRead;
+    private int noteId;
+    private Member member;
+    private Loan loan;
+    private String type;
+    private String message;
+    private LocalDate sentDate;
+    private boolean isRead;
 
     public Note(int noteId, Member member, Loan loan, String type, String message, LocalDate sentDate, boolean isRead) {
         this.noteId = noteId;

@@ -1,10 +1,10 @@
 Welcome to the library!
 Are you a:
-1. Member?
+1. Member.Member?
 2. Admin?
 (0. Exit)
 
-Member:
+Member.Member:
 Please enter your member ID number or e-mail address (0 to go back):
 
 Welcome, %Name%!
@@ -14,12 +14,12 @@ You have %value% in outstanding fines.
 You have %loans% books borrowed currently.
 %overdueloans% of these are currently overdue.
 What do you want to do?
-1. Book menu.
+1. Book.Book menu.
 2. Loans menu.
 3. Read notifications.
 0. Back.
 
-Book menu:
+Book.Book menu:
 1. Display all books.
 2. Display all available books.
 3. Search books by author.
@@ -80,7 +80,7 @@ Admin-member menu:
 3. Add member.
 
 Admin one-member menu:
-Member info:
+Member.Member info:
 1. Change first name.
 2. Change last name.
 3. Change e-mail address.

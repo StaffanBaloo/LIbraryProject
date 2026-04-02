@@ -1,26 +1,28 @@
-public class UserService {
-    UserRepository userRepository = new UserRepository();
+package Member;
 
-    public User getById(int userId){
-        return userRepository.getById(int userId);
+import Note.NoteService;
+
+import java.util.ArrayList;
+
+public class MemberService {
+
+    MemberRepository memberRepository = new MemberRepository();
+
+    public ArrayList<Member> getAllMembers(){
+            return memberRepository.getAllMembers();
     }
 
-    public User getByEmail(String email){
-        return userRepository.getByEmail(email);
+    public Member getById(int memberId){
+        return memberRepository.getById(memberId);
     }
 
-    public String getFullName(int userId){
-        return getById(userId).getFullName();
+    public Member getByEmail(String email){
+        return memberRepository.getByEmail(email);
     }
 
-    public String getStatus(int userId){
-        return getById(userId).getStatus();
-    }
-
-    public int getNumberUnreadNotes(int userId){
+    public int getNumberUnreadNotes(int memberId){
         NoteService noteService = new NoteService();
         return noteService.getNumberUnreadNotesByUser(userId);
-
     }
 
     public float getUnpaidFinesTotal(int userId){
@@ -37,6 +39,4 @@ public class UserService {
         LoanService loanService = new LoanService();
         return loanService.getNumberOfOverdueLoansByUser(userId);
     }
-
-    
 }

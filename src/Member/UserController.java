@@ -1,7 +1,16 @@
+package Member;
+
+import Book.BookController;
+import Loan.*;
+import Note.*;
+import Main;
+
 import java.util.Scanner;
 
 public class UserController {
-    UserService userService = new UserService();
+    MemberService memberService = new MemberService();
+    LoanService loanService = new LoanService();
+    NoteService noteService = new NoteService();
     Scanner scanner = new Scanner(System.in);
 
     public UserController() {
@@ -17,20 +26,20 @@ public class UserController {
             System.out.println("Welcome, " + Main.loggedInUser.getFirstName() + "!");
             System.out.println("Your membership status is: " + Main.loggedInUser.getStatus() + ".");
 
-            numberUnreadNotes = userService.getNumberUnreadNotes(Main.loggedInUser.getMemberId());
+            numberUnreadNotes = noteService.getNumberUnreadNotesByMember(Main.loggedInUser.getMemberId());
             if (numberUnreadNotes > 0) {
                 System.out.println("You have " + numberUnreadNotes + " unread notifications.");
             } else {
                 System.out.println("You have no unread notifications.");
             }
 
-            totalFines = userService.getUnpaidFinesTotal(Main.loggedInUser.getMemberId());
+            totalFines = fineService.getUnpaidFinesTotalByMember(Main.loggedInUser.getMemberId());
             if (totalFines > 0f) {
                 System.out.println("You have " + totalFines + " in unpaid fines.");
             }
 
-            numberLoans = userService.getNumberOfCurrentLoans(Main.loggedInUser.getMemberId());
-            numberOverdueLoans = userService.getNumberOfOverdueLoans(Main.loggedInUser.getMemberId());
+            numberLoans = loanService.getNumberOfCurrentLoansByMember(Main.loggedInUser.getMemberId());
+            numberOverdueLoans = loanService.getNumberOfOverdueLoansByMember(Main.loggedInUser.getMemberId());
             if(numberLoans>0){
                 if(numberOverdueLoans>0) {
                     System.out.println("You have " + numberLoans + " loans currently, of which " + numberOverdueLoans + " are overdue.");

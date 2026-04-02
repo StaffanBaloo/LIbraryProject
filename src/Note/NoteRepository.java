@@ -1,6 +1,9 @@
+package Note;
+
+import Member.Member;
+
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class NoteRepository extends Repository {
 
@@ -13,8 +16,8 @@ public class NoteRepository extends Repository {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT id, member_id, loan_id, type, message, sent_date, is_read
-                FROM notes
-                WHERE notes.id = ?
+                FROM notifications
+                WHERE id = ?
             """)) {
             stmt.setInt(1, noteId);
             ResultSet rs =stmt.executeQuery();
@@ -35,5 +38,25 @@ public class NoteRepository extends Repository {
             System.out.println("Fel: " + e.getMessage());
         }
         return note;
+    }
+
+    public integer getNumberUnreadNotesByMember((int memberId){
+        Note note;
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                SELECT COUNT(*) as number
+                FROM notifications
+                WHERE member_id = ? AND is_read = false;
+            """)) {
+            stmt.setInt(1, memberId);
+            ResultSet rs =stmt.executeQuery();
+            if(rs.first()){
+                return rs.getInt("number");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return null;
     }
 }
