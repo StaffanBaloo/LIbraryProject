@@ -1,6 +1,6 @@
 package Loan;
-import Book.*;
-import Member.MemberService;
+import Fine.FineService;
+import Rules;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,7 +9,12 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 public class LoanService {
 
-    LoanRepository loanRepository = new loanRepository();
+    LoanRepository loanRepository = new LoanRepository();
+    FineService fineService = new FineService();
+
+    public Loan getLoanById(int loanId){
+        return loanRepository.getLoanById(loanId);
+    }
 
     public int getNumberOfCurrentLoansByMember(int memberId) {
         return loanRepository.getNumberOfCurrentLoansByMember(memberId);
@@ -23,21 +28,36 @@ public class LoanService {
         return loanRepository.getCurrentLoansByMember(memberId);
     }
 
-    public float returnLoan(int memberId, int loanId) {
-        Loan loan = loanRepository.getLoanById(loanId);
-
-        return loanRepository.returnLoan(memberId, loanId);
+    public int returnLoan(Loan loan) {
+        int fine = calculateFine(loan);
+        try {
+            loanRepository.returnLoan(loan);
+            System.out.println("You have returned " + loan.getBook().getTitle() + ".");
+            if (fine > 0) {
+                System.out.println("You have incurred a new fee of " + fine + ".");
+                fineService.createFine(loan, fine);
+            }
+            return fine;
+        } catch (LoanReturnException e){
+            System.out.println("Could not return loan "+loan.getId()+".");
+            System.out.println(e.getMessage());
+        }
+        return 0;
     }
 
-    public float returnAllLoansForMember(int memberId){
+    public int returnAllLoansForMember(int memberId){
         ArrayList<Loan> loans = getCurrentLoansByMember(memberId);
-        float totalFees=0;
+        int totalFines=0;
         for(Loan loan:loans) {
             try {
-                int newFee = returnLoan(memberId, loan.getId());
-                System.out.println("You have returned " + loanService.getBookTitleByLoanId(loanId) + ".");
+                int newFine = returnLoan(loan);
+                System.out.println("You have returned " + loan.getBook().getTitle() + ".");
+                if (newFine>0){
+                    fineService.createFine
 
-            }  catch (LoanRenewException e) {
+                }
+
+            }  catch (LoanReturnException e) {
                 System.out.println("Could not return loan "+loan.getId()+".");
                 System.out.println(e.getMessage());
             }
@@ -45,12 +65,13 @@ public class LoanService {
         }
     }
 
-    float calculateFee(Loan loan){
-        MemberService memberService = new MemberService();
-        return Rules.feeByMembershipType(memberService.getById(loan.getMemberId()).getMembershipType()) * weeksOverdue(loan);
+
+
+    int calculateFine(Loan loan){
+        return Rules.feeByMembershipType(loan.getMember().getMembershipType() * weeksOverdue(loan);
     }
 
     int weeksOverdue(Loan loan){
-        return Math.ceil(DAYS.between(loan.getDueDate(), LocalDate.now())/7)
+        return (int) Math.ceil(DAYS.between(loan.getDueDate(), LocalDate.now())/7);
     }
 }

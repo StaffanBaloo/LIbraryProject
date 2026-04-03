@@ -57,7 +57,7 @@ public class LoanController {
             System.out.println("Your current loans are:");
             ArrayList<Loan> loans = loanService.getCurrentLoansByMember(Main.loggedInUser.getMemberId());
             for (Loan loan : loans) {
-                System.out.println(loan.toString);
+                System.out.println(loan.toString());
             }
         }else {
             System.out.println("You do not have any current loans.");
@@ -71,8 +71,8 @@ public class LoanController {
             int returnCounter=0
             for(Loan loan:loans) {
                 try {
-                    int newFee = returnLoan(memberId, loan.getId());
-                    System.out.println("You have returned " + loanService.getBookTitleByLoanId(loanId) + ".");
+                    int newFee = returnLoan(loan);
+                    System.out.println("You have returned " + loan.getBook().getTitle() + ".");
                     returnCounter++;
                     if (newFee>0){
                         System.out.println("You have incurred a new fee of " + newFee + ".");
@@ -105,8 +105,9 @@ public class LoanController {
             System.out.println("Which loan do you wish to return?");
             int loanId = Integer.parseInt(scanner.nextLine());
             try {
-                float newFee = loanService.returnLoan(Main.loggedInUser.getMemberId(), loanId);
-                System.out.println("You have returned " + loanService.getBookTitleByLoanId(loanId) + ".");
+                Loan loan = loanService.getLoanById(loanId);
+                float newFee = loanService.returnLoan(loan);
+                System.out.println("You have returned " + loan.getBook().getTitle() + ".");
                 if (newFee > 0) {
                     System.out.println("You have incurred a new fee of " + newFee + ".");
                 }
@@ -123,10 +124,10 @@ public class LoanController {
             ArrayList<Loan> loans = loanService.getCurrentLoansByMember(Main.loggedInUser.getMemberId());
             for(Loan loan : loans){
                 try{
-                    loanService.renewLoan(loan.getId());
+                    loanService.renewLoan(loan);
                 }
                 catch (LoanRenewException e){
-                    System.out.println("Could not renew loan " + loan.getId() + " of " + loanService.getBookByLoanId(loan.getID().getTitle()) + ".");
+                    System.out.println("Could not renew loan " + loan.getId() + " of " + loan.getBook().getTitle()) + ".");
                     System.out.println(e.getMessage());
                 }
             }
@@ -141,8 +142,9 @@ public class LoanController {
             System.out.println("Which loan do you wish to renew?");
             int loanId = Integer.parseInt(scanner.nextLine());
             try {
-                loanService.renewLoan(loanId);
-                System.out.println("You have renewed " + loanService.getBookByLoanId(loan.getID().getTitle()) + ".");
+                Loan loan = loanService.getLoanById(loanId);
+                loanService.renewLoan(loan);
+                System.out.println("You have renewed " + loan.getBook().getTitle()) + ".");
                 System.out.println("The new due date is " + loanService.getDueDate(loanId) +".");
             } catch (LoanRenewException e) {
                 System.out.println("Could not renew that loan.");

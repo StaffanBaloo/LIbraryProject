@@ -1,6 +1,7 @@
 package Note;
 
 import Member.Member;
+import Repository;
 
 import java.sql.*;
 import java.time.LocalDate;

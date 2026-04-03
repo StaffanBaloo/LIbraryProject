@@ -1,18 +1,20 @@
 package Loan;
 
-import Book.Book;
+import Book.*;
 import Member.Member;
 
 import java.time.LocalDate;
 
 public class Loan {
-    private int id, bookId, memberId;
+    private int id;
+    BookLoanDTO book;
+    Member member;
     private LocalDate loanDate, dueDate, returnDate;
 
-    public Loan(int id, int bookId, int memberId, LocalDate loanDate, LocalDate dueDate) {
+    public Loan(int id, BookLoanDTO bookId, Member member, LocalDate loanDate, LocalDate dueDate) {
         this.id = id;
-        this.bookId = bookId;
-        this.memberId = memberId;
+        this.book = book;
+        this.member = member;
         this.loanDate = loanDate;
         this.dueDate = dueDate;
     }
@@ -34,20 +36,20 @@ public class Loan {
         this.id = id;
     }
 
-    public int getBookId() {
-        return bookId;
+    public BookLoanDTO getBook() {
+        return book;
     }
 
-    public void setBookId(int bookId) {
-        this.bookId = bookId;
+    public void setBook(BookLoanDTO book) {
+        this.book = book;
     }
 
-    public int getMemberId() {
-        return memberId;
+    public Member getMember() {
+        return member;
     }
 
-    public void setMemberId(int memberId) {
-        this.memberId = memberId;
+    public void setMember(Member member) {
+        this.member = member;
     }
 
     public LocalDate getLoanDate() {
@@ -72,5 +74,13 @@ public class Loan {
 
     public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
+    }
+
+    @Override
+    public String toString() {
+        return id +
+                " | " + book.getTitle() +
+                " | " + loanDate.toString() +
+                " | " + dueDate.toString();
     }
 }

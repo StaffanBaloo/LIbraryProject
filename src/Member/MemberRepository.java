@@ -3,6 +3,7 @@ package Member;
 import java.sql.*;
 import java.util.ArrayList;
 import java.time.LocalDate;
+import Repository;
 
 public class MemberRepository extends Repository {
 

@@ -2,6 +2,7 @@ package Book;
 
 import java.sql.*;
 import java.util.ArrayList;
+import Repository;
 
 public class BookRepository extends Repository {
 
