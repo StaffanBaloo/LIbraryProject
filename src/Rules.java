@@ -1,23 +1,23 @@
 public class Rules {
     // weekly overdue fees for a Standard/Premium member.
-    final static float overdueFeeStandard = 10;
-    final static float overdueFeePremium = 5;
+    final static int overdueFineStandard = 10;
+    final static int overdueFinePremium = 5;
     //Duration of a loan in weeks for a standard/premium member.
     final static int loanDurationStandard =3;
     final static int loanDurationPremium = 5;
 
-    public static float feeByMembershipType (String type) {
+    public static int fineByMembershipType(String type) {
         switch (type.toLowerCase()){
             case "standard": {
-                return overdueFeeStandard;
+                return overdueFineStandard;
                 break;
             }
             case "premium": {
-                return overdueFeePremium;
+                return overdueFinePremium;
                 break;
             }
         }
-        return overdueFeeStandard;
+        return overdueFineStandard;
     }
 
     public static int weeksByMembershipType (String type) {

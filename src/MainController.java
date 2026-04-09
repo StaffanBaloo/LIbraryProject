@@ -1,4 +1,4 @@
-import Member.*;
+import member.*;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
