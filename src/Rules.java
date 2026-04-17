@@ -1,36 +1,40 @@
+import java.time.LocalDate;
+
 public class Rules {
     // weekly overdue fees for a Standard/Premium member.
-    final static int overdueFineStandard = 10;
-    final static int overdueFinePremium = 5;
+    private final static int overdueFineStandard = 10;
+    private final static int overdueFinePremium = 5;
     //Duration of a loan in weeks for a standard/premium member.
-    final static int loanDurationStandard =3;
-    final static int loanDurationPremium = 5;
+    private final static int loanDurationStandard =3;
+    private final static int loanDurationPremium = 5;
+    //maximum days overdue for a standard/premium member before suspension.
+    private final static int maxOverdueStandard = 14;
+    private final static int maxOverduePremium = 28;
 
     public static int fineByMembershipType(String type) {
+        int fine = overdueFineStandard;
         switch (type.toLowerCase()){
-            case "standard": {
-                return overdueFineStandard;
-                break;
-            }
-            case "premium": {
-                return overdueFinePremium;
-                break;
-            }
+            case "standard" -> fine = overdueFineStandard;
+            case "premium"-> fine = overdueFinePremium;
         }
-        return overdueFineStandard;
+        return fine;
     }
 
     public static int weeksByMembershipType (String type) {
-        switch (type.toLowerCase()){
-            case "standard": {
-                return loanDurationStandard;
-                break;
-            }
-            case "premium": {
-                return loanDurationPremium;
-                break;
-            }
+        int duration = loanDurationStandard;
+        switch (type.toLowerCase()) {
+            case "standard" -> duration = loanDurationStandard;
+            case "premium" -> duration = loanDurationPremium;
         }
-        return loanDurationStandard;
+        return duration;
     }
+
+    public static LocalDate suspensionDateByMembershipType(String type){
+        LocalDate limitDate = LocalDate.now().minusDays(maxOverdueStandard);
+        if(type == "premium") {
+            limitDate = LocalDate.now().minusDays(maxOverduePremium);
+        }
+        return limitDate;
+    }
+
 }

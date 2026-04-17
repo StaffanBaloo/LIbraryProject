@@ -33,76 +33,27 @@ public class ANSI {
     }
 
     public static String color(String col){
+        String value ="";
         switch (col.toLowerCase()){
-            case "red":{
-                return "\033[31m";
-                break;
-            }
-            case "green":{
-                return "\033[32m";
-                break;
-            }
-            case "yellow":{
-                return "\033[33m";
-                break;
-            }
-            case "blue":{
-                return "\033[34m";
-                break;
-            }
-            case "magenta":{
-                return "\033[35m";
-                break;
-            }
-            case "cyan":{
-                return "\033[36m";
-                break;
-            }
-            case "white":{
-                return "\033[37m";
-                break;
-            }
-            case "orange":{
-                return "\033[38m";
-                break;
-            }
-            case "default":{
-                return "\033[39m";
-                break;
-            }
-            case "bright_black":{
-                return "\033[90m";
-                break;
-            }
-            case "bright_red":{
-                return "\033[91m";
-                break;
-            }
-            case "bright_green":{
-                return "\033[92m";
-                break;
-            }
-            case "bright_yellow":{
-                return "\033[93m";
-                break;
-            }
-            case "bright_blue":{
-                return "\033[94m";
-                break;
-            }
-            case "bright_magenta":{
-                return "\033[95m";
-                break;
-            }
-            case "bright_cyan":{
-                return "\033[96m";
-                break;
-            }
-            case "bright_white":{
-                return "\033[97m";
-                break;
-            }
+            case "red" -> value = "\033[31m";
+            case "green" -> value = "\033[32m";
+            case "yellow" -> value = "\033[33m";
+            case "blue" -> value = "\033[34m";
+            case "magenta" -> value = "\033[35m";
+            case "cyan" -> value = "\033[36m";
+            case "white" -> value = "\033[37m";
+            case "orange" -> value = "\033[38m";
+            case "default" -> value = "\033[39m";
+            case "bright_black" -> value = "\033[90m";
+            case "bright_red" -> value = "\033[91m";
+            case "bright_green" -> value = "\033[92m";
+            case "bright_yellow" -> value = "\033[93m";
+            case "bright_blue" -> value = "\033[94m";
+            case "bright_magenta" -> value = "\033[95m";
+            case "bright_cyan" -> value = "\033[96m";
+            case "bright_white" -> value = "\033[97m";
         }
+        return value;
     }
 
     public static String clearScreen(){

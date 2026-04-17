@@ -2,8 +2,6 @@ package author;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import book.*
 
 public class Author {
     private int id;
@@ -13,7 +11,6 @@ public class Author {
     private LocalDate birthDate;
     private String biography;
     private String website;
-    private ArrayList<Book> books;
 
     public Author(int id, String firstName, String lastName, String nationality, LocalDate birthDate, String biography, String website) {
         this.id = id;
@@ -31,6 +28,15 @@ public class Author {
         this.lastName = lastName;
         this.nationality = nationality;
         this.birthDate = birthDate;
+    }
+
+    public Author(String firstName, String lastName, String nationality, LocalDate birthDate, String biography, String website) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.nationality = nationality;
+        this.birthDate = birthDate;
+        this.biography = biography;
+        this.website = website;
     }
 
     public int getId() {
@@ -71,14 +77,6 @@ public class Author {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
-    }
-
-    public AuthorDescription getAuthorDescription() {
-        return authorDescription;
-    }
-
-    public void setAuthorDescription(AuthorDescription authorDescription) {
-        this.authorDescription = authorDescription;
     }
 
     public String getBiography() {

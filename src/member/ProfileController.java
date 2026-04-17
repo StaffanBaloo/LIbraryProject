@@ -1,20 +1,21 @@
 package member;
-
-import book.BookController;
-import fine.FineService;
-import loan.*;
-import note.*;
 import Main;
+import fine.FineController;
+import fine.FineService;
+import loan.LoanService;
+import note.NoteController;
+import note.NoteService;
 
 import java.util.Scanner;
 
-public class UserController {
-    LoanService loanService = new LoanService();
+public class ProfileController () {
     NoteService noteService = new NoteService();
     FineService fineService = new FineService();
+    LoanService loanService = new LoanService();
     Scanner scanner = new Scanner(System.in);
 
-    public UserController() {
+
+    public ProfileController (){
 
     }
 
@@ -52,29 +53,27 @@ public class UserController {
             }
             System.out.println("""
                     What do you want to do?
-                    1. Book menu.
-                    2. Loans menu.
-                    3. Profile menu.
-                    0. Go back and log out.""");
+                    1. Notifications menu.
+                    2. Fines menu.
+                    3. Membership menu.
+                    0. Go back.""");
             choice=Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1 -> {
-                    BookController bookController = new BookController();
-                    bookController.showMenu();
+                    NoteController noteController = new NoteController();
+                    noteController.showMenu();
                 }
                 case 2 -> {
-                    LoanController loanController = new LoanController();
-                    loanController.showMenu();
+                    FineController fineController = new FineController();
+                    fineController.showMenu();
                 }
                 case 3 -> {
-                    ProfileController profileController = new ProfileController();
-                    profileController.showMenu();
+                    MemberController memberController = new MemberController();
+                    memberController.showMenu();
                 }
-                case 0-> {
-                    active=false;
-                    Main.logout();
-                }
+                case 0 -> active = false;
             }
+
         }
     }
 }

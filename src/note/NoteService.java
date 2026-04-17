@@ -1,63 +1,63 @@
 package note;
 
+import loan.Loan;
 import loan.LoanRepository;
+import member.Member;
 import member.MemberRepository;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Nodes.collect;
-
 public class NoteService {
     NoteRepository noteRepository = new NoteRepository();
-    LoanRepository loanRepository = new LoanRepository();
-    MemberRepository memberRepository = new MemberRepository();
 
     public Note getById(int noteId){
-        Note note = noteRepository.getById(noteId);
-        fillWithLoan(note);
-        fillWithMember(note);
+        return noteRepository.getNoteById(noteId);
     }
 
-    public int getNumberUnreadNotesByMember(int userId){
-        return noteRepository.getNumberUnreadNotesByMember(userId);
+    public void sendNote(Member member, Loan loan, String type){
+        Note note = new Note(member, loan, type);
+        noteRepository.createNote(note);
+    }
+
+    public int getNumberUnreadNotesByMember(Member member){
+        return noteRepository.getNumberUnreadNotesByMember(member);
 
     }
 
-    public int getNumberNotesByUser(int userId){
-        return noteRepository.getNumberNotesByMember(userId);
+    public int getNumberNotesByMember(Member member){
+        return noteRepository.getNumberNotesByMember(member);
     }
 
-    public void markRead(int noteId){
-        noteRepository.markRead(noteId);
+    public void markRead(Note note){
+        noteRepository.markRead(note);
     }
 
-    public void markUnread(int noteId){
-        noteRepository.markUnread(noteId);
+    public void markUnread(Note note){
+        noteRepository.markUnread(note);
     }
 
     public Note getNote(int noteId){
-        return noteRepository.getNote(noteId);
+        return noteRepository.getNoteById(noteId);
     }
 
-    public Note getOldestUnreadByUser(int userId){
-        return noteRepository.getOldestUnreadByMember(userId);
+    public Note getOldestUnreadByMember(Member member){
+        return noteRepository.getOldestUnreadByMember(member);
     }
 
-    public ArrayList<Note> getNotesByUser(int userId) {
-        return noteRepository.getNotesByMember(userId);
+    public ArrayList<Note> getNotesByMember(Member member) {
+        return noteRepository.getNotesByMember(member);
     }
 
-    public ArrayList<Note> getUnreadNotesByUser(int userId) {
-        ArrayList<Note> notes = noteRepository.getNotesByUser(userId)
-                .stream()
-                .filter(!(Note::isRead()))
-                .collect(Collectors.toList());
-
-    }
-
-    public void fillWithLoan(Note note) {
-        note.setLoan(loanRepository);
+    public ArrayList<Note> getUnreadNotesByMember(Member member) {
+        ArrayList<Note> notes = noteRepository.getNotesByMember(member);
+        ArrayList<Note> newnotes = new ArrayList<>();
+        for(Note note: notes){
+            if(note.isUnread()){
+                newnotes.add(note);
+            }
+        }
+        return newnotes;
     }
 
 }

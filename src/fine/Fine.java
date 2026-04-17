@@ -28,6 +28,13 @@ public class Fine {
         this.status = status;
     }
 
+    public Fine(int id, int amount, LocalDate issuedDate, LocalDate paidDate, String status) {
+        this.id = id;
+        this.amount = amount;
+        this.issuedDate = issuedDate;
+        this.paidDate = paidDate;
+        this.status = status;
+    }
 
 
     public int getId() {
@@ -76,6 +83,10 @@ public class Fine {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public boolean isPending(){
+        return !(this.status=="pending");
     }
 
     public void setPaid() {

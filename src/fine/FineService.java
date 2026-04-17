@@ -1,6 +1,7 @@
 package fine;
 
 import loan.Loan;
+import member.Member;
 
 import java.util.ArrayList;
 
@@ -16,11 +17,24 @@ public class FineService {
     }
 
     public ArrayList<Fine> getAllFines(){
-        ArrayList<Fine> fines = fineRepository.getAllFines();
-        for(Fine fine : fines) {
-
-        }
-
+        return fineRepository.getAllFines();
     }
+
+    public ArrayList<Fine> getAllUnpaidFinesForMember (Member member) {
+        return fineRepository.getAllUnpaidFinesForMember(member);
+    }
+
+    public int getUnpaidFinesTotalByMemberId(int memberId) {
+        return fineRepository.getUnpaidFinesTotalByMemberId(memberId);
+    }
+
+    public boolean exists(int id) {
+        return fineRepository.exists(id);
+    }
+
+    public Fine getFineById(int id){
+        return fineRepository.getFineById(id);
+    }
+
 
 }

@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.ArrayList;
 
 import Repository;
+import exceptions.CantCreateMemberException;
+import exceptions.MemberNotFoundException;
 
 public class MemberRepository extends Repository {
 
@@ -33,15 +35,54 @@ public class MemberRepository extends Repository {
         return members;
     }
 
-    public member getByEmail(String mail){
-        Member member;
+    public ArrayList<Member> getAllMembersByStatus(String status) {
+        ArrayList<Member> members = new ArrayList<>();
+        // try-with-resources stänger anslutningen automatiskt när blocket är klart
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.createStatement("SELECT * from members WHERE email=? ")) {
-            stmt.setString(1, email);
+             PreparedStatement stmt = conn.prepareStatement("SELECT * from members WHERE status =?;")) {
+            stmt.setString(1, status);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                members.add(mapRow(rs));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return members;
+    }
+
+    public boolean exists(int memberId) {
+        boolean exists = false;
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                SELECT count(*) AS number FROM members
+                WHERE id = ?;
+            """)) {
+            stmt.setInt(1,memberId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.first()) {
+                if(rs.getInt("number")>0) {
+                    exists = true;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return exists;
+    }
+
+    public Member getByEmail(String mail){
+        Member member = null;
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("SELECT * from members WHERE email=?;")) {
+            stmt.setString(1, mail);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.first()) {
                 member = mapRow(rs);
+            } else {
+                throw (new MemberNotFoundException("Could not find member with email "+mail+"."));
             }
 
         } catch (SQLException e) {
@@ -50,15 +91,17 @@ public class MemberRepository extends Repository {
         return member;
     }
 
-    public member getById(int memberId){
-        Member member;
+    public Member getById(int memberId){
+        Member member = null;
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.createStatement("SELECT * from members WHERE id=? ")) {
+             PreparedStatement stmt = conn.prepareStatement("SELECT * from members WHERE id=?;")) {
             stmt.setInt(1, memberId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.first()) {
                 member = mapRow(rs);
+            } else {
+                throw (new MemberNotFoundException("Could not find member with ID "+memberId+"."));
             }
 
         } catch (SQLException e) {
@@ -67,14 +110,71 @@ public class MemberRepository extends Repository {
         return member;
     }
 
+    public void save(Member member) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                     UPDATE members
+                     SET first_name = ?,
+                        last_name = ?,
+                        email = ?,
+                        membership_date = ?,
+                        membership_type = ?,
+                        status = ?
+                     WHERE id = ?;""")) {
+            stmt.setString(1, member.getFirstName());
+            stmt.setString(2, member.getLastName());
+            stmt.setString(3, member.getEmail());
+            stmt.setDate(4, Date.valueOf(member.getMembershipDate()));
+            stmt.setString(5, member.getMembershipType());
+            stmt.setString(6, member.getStatus());
+            stmt.setInt(7, member.getMemberId());
+            stmt.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+
+    }
+
+    public void addMember(Member member){
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement insert = conn.prepareStatement("""
+                INSERT INTO members (first_name, last_name, email, membership_date, membership_type, status)
+                VALUES (?, ?, ?, ?, ?, ?)""")) {
+            insert.setString(1, member.getFirstName());
+            insert.setString(2, member.getLastName());
+            insert.setString(3, member.getEmail());
+            insert.setDate(4, Date.valueOf(member.getMembershipDate()));
+            insert.setString(5, member.getMembershipType());
+            insert.setString(6, member.getStatus());
+            ResultSet insertSet = insert.getGeneratedKeys();
+            int insertRowCount = insert.executeUpdate();
+            if(insertRowCount>0){
+                if(insertSet.next()){
+                    int newMemberId=insertSet.getInt("id");
+                    member.setMemberId(newMemberId);
+                }
+            } else {
+                throw new CantCreateMemberException("Could not create member.");
+            }
+        }catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+    }
+
     private Member mapRow(ResultSet rs) {
-        return new Member(rs.getInt("id"),
-                rs.getString("first_name"),
-                rs.getString("last_name"),
-                rs.getString("email"),
-                rs.getString("membership_type"),
-                rs.getString("status"),
-                rs.getDate("membership_date").toLocalDate());
+        Member member = null;
+        try {
+            member = new Member(rs.getInt("id"),
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getString("email"),
+                    rs.getString("membership_type"),
+                    rs.getString("status"),
+                    rs.getDate("membership_date").toLocalDate());
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return member;
     }
 
 

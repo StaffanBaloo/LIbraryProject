@@ -19,7 +19,7 @@ public class IO {
         boolean active=true;
         int result;
         while (active){
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
             if(Objects.equals(input, "")){
                 active=false;
             }

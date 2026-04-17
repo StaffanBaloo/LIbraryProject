@@ -2,18 +2,50 @@ package book;
 
 import java.util.ArrayList;
 
-public class BookShortDTO {
+public class BookListDTO {
 
     private int bookId;
     private String title;
     private ArrayList<String> authorList;
     private int availableCopies;
 
-    public BookShortDTO(int bookId, String title, ArrayList<String> authorList, int availableCopies) {
+    public BookListDTO(int bookId, String title, ArrayList<String> authorList, int availableCopies) {
         this.bookId = bookId;
         this.title = title;
         this.authorList = authorList;
         this.availableCopies = availableCopies;
+    }
+
+    public int getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(int bookId) {
+        this.bookId = bookId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getAvailableCopies() {
+        return availableCopies;
+    }
+
+    public void setAvailableCopies(int availableCopies) {
+        this.availableCopies = availableCopies;
+    }
+
+    public ArrayList<String> getAuthorList() {
+        return authorList;
+    }
+
+    public void setAuthorList(ArrayList<String> authorList) {
+        this.authorList = authorList;
     }
 
     public String authors(){
@@ -41,7 +73,5 @@ public class BookShortDTO {
         return fullBook;
     }
 
-    public static BookShortDTO mapToDTO(Book book) {
-        return new BookShortDTO(book.getBookId(), book.getTitle(), book.getAuthors(), book.getAvailableCopies());
-    }
+
 }

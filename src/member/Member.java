@@ -17,6 +17,15 @@ public class Member {
         this.membershipDate = membershipDate;
     }
 
+    public Member(String firstName, String lastName, String email, String membershipType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.membershipType = membershipType;
+        this.status="active";
+        this.membershipDate=LocalDate.now();
+    }
+
     @Override
     public String toString() {
         String fullMember = "";
@@ -84,4 +93,9 @@ public class Member {
     public void setMembershipDate(LocalDate membershipDate) {
         this.membershipDate = membershipDate;
     }
+
+    public String getFullName(){
+        return this.firstName + " " + this.lastName;
+    }
+
 }

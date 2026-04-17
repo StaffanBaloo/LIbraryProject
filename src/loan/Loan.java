@@ -19,8 +19,24 @@ public class Loan {
         this.dueDate = dueDate;
     }
 
+    public Loan(Book book, Member member, LocalDate loanDate, LocalDate dueDate) {
+        this.book = book;
+        this.member = member;
+        this.loanDate = loanDate;
+        this.dueDate = dueDate;
+    }
+
     public Loan(int id, LocalDate loanDate, LocalDate dueDate, LocalDate returnDate) {
         this.id = id;
+        this.loanDate = loanDate;
+        this.dueDate = dueDate;
+        this.returnDate = returnDate;
+    }
+
+    public Loan(int id, Book book, Member member, LocalDate loanDate, LocalDate dueDate, LocalDate returnDate) {
+        this.id = id;
+        this.book = book;
+        this.member = member;
         this.loanDate = loanDate;
         this.dueDate = dueDate;
         this.returnDate = returnDate;
@@ -72,6 +88,10 @@ public class Loan {
 
     public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
+    }
+
+    public boolean isOverdue(){
+        return (LocalDate.now().isBefore(this.dueDate) && this.returnDate == null);
     }
 
     @Override

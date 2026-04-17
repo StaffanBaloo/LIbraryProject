@@ -4,6 +4,7 @@ import author.Author;
 import category.Category;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Book {
 
@@ -18,6 +19,26 @@ public class Book {
     private String summary;
     private int pageCount;
     private String language;
+
+    public Book(int bookId, String title, String isbn, int yearPublished, int totalCopies, int availableCopies) {
+        this.bookId = bookId;
+        this.title = title;
+        this.isbn = isbn;
+        this.yearPublished = yearPublished;
+        this.totalCopies = totalCopies;
+        this.availableCopies = availableCopies;
+    }
+
+    public Book(String title, String isbn, int yearPublished, int totalCopies, int availableCopies, String summary, int pageCount, String language) {
+        this.title = title;
+        this.isbn = isbn;
+        this.yearPublished = yearPublished;
+        this.totalCopies = totalCopies;
+        this.availableCopies = availableCopies;
+        this.summary = summary;
+        this.pageCount = pageCount;
+        this.language = language;
+    }
 
     public Book(int bookId, String title, String isbn, int yearPublished, int totalCopies, int availableCopies, ArrayList<Author> authors, ArrayList<Category> categories, String summary, int pageCount, String language) {
         this.bookId = bookId;
@@ -53,15 +74,37 @@ public class Book {
         fullBook += "title = '" + title + "'";
         fullBook += " | yearPublished = " + yearPublished;
         fullBook += " | availableCopies = " + availableCopies;
-        fullBook += " | author(s) = " + ListAuthors();
+        fullBook += " | author(s) = " + listAuthors();
         fullBook += " | summary = '" + summary + "'";
         fullBook += " | pageCount=" + pageCount;
         fullBook += " | language='" + language;
         return fullBook;
     }
 
-    public String ListAuthors(){
+    public String listAuthors(){
+        String value;
+        if(authors.isEmpty()) {
+            value = "(No authors)";
+        } else {
+            value = authors
+                    .stream()
+                    .map(Author::getFullName)
+                    .collect(Collectors.joining(", "));
+        }
+        return value;
+    }
 
+    public String listCategories(){
+        String value;
+        if(categories.isEmpty()) {
+            value = "(No categories)";
+        } else {
+            value = categories
+                    .stream()
+                    .map(Category::getName)
+                    .collect(Collectors.joining(", "));
+        }
+        return value;
     }
 
     public int getBookId() {
@@ -96,7 +139,7 @@ public class Book {
         this.availableCopies = availableCopies;
     }
 
-    public ArrayList<String> getAuthors() {
+    public ArrayList<Author> getAuthors() {
         return authors;
     }
 
@@ -128,17 +171,17 @@ public class Book {
         this.categories = categories;
     }
 
-    public void addAuthor(String author) {
-        this.authorList.add(author);
+    public void addAuthor(Author author) {
+        this.authors.add(author);
     }
 
     public void clearAuthors(){
-        authorList.clear();
+        authors.clear();
     }
 
-    public void setSingleAuthor (String author) {
-        authorList.clear();
-        authorList.add(author);
+    public void setSingleAuthor (Author author) {
+        authors.clear();
+        authors.add(author);
     }
 
     public String getSummary() {
@@ -164,4 +207,5 @@ public class Book {
     public void setLanguage(String language) {
         this.language = language;
     }
+
 }

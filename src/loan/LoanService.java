@@ -1,13 +1,19 @@
 package loan;
-import book.BookRepository;
+import book.Book;
+import exceptions.LoanCreationException;
+import exceptions.LoanRenewException;
 import exceptions.LoanReturnException;
-import fine.Fine;
 import fine.FineService;
-import member.MemberRepository;
+import member.Member;
 import Rules;
+import Main;
 
+import java.time.DayOfWeek;
+import java.time.DayOfWeek.*;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -15,56 +21,57 @@ public class LoanService {
 
     LoanRepository loanRepository = new LoanRepository();
     FineService fineService = new FineService();
-    BookRepository bookRepository = new BookRepository();
-    MemberRepository memberRepository = new MemberRepository();
 
     public Loan getLoanById(int loanId){
-        Loan loan = loanRepository.getLoanById(loanId);
-        fillWithBook(loan);
-        fillWithMember(loan);
-        return loan;
+        return loanRepository.getLoanById(loanId);
     }
 
-    public int getNumberOfCurrentLoansByMember(int memberId) {
-        return loanRepository.getNumberOfCurrentLoansByMember(memberId);
+    public ArrayList<Loan> getAllLoans(){
+        return loanRepository.getAllLoans();
     }
 
-    public int getNumberOfOverdueLoansByMember(int memberId) {
-        return loanRepository.getNumberOfOverdueLoansByMember(memberId);
+    public ArrayList<Loan> getAllCurrentLoans(){
+        return loanRepository.getAllLoans()
+                .stream()
+                .filter(loan -> loan.getReturnDate() == null)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<Loan> getCurrentLoansByMember(int memberId) {
-        ArrayList<Loan> loans = loanRepository.getLoansByMember(memberId);
-        ArrayList<Loan> loans2 = new ArrayList<>();
-        for (Loan loan : loans) {
-            if (loan.getReturnDate() == null) {
-                fillWithMember(loan);
-                fillWithBook(loan);
-                loans2.add(loan);
-            }
-        }
-        return loans2;
+    public ArrayList<Loan> getAllOverdueLoans(){
+        return loanRepository.getAllLoans()
+                .stream()
+                .filter(loan -> loan.getReturnDate() == null)
+                .filter(loan -> loan.getDueDate().isBefore(LocalDate.now()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<Loan> getAllLoansByMember(int memberId) {
-        ArrayList<Loan> loans = loanRepository.getLoansByMember(memberId);
-        for (Loan loan : loans) {
-            fillWithMember(loan);
-            fillWithBook(loan);
-        }
-        return loans;
+    public int getNumberOfCurrentLoansByMember(Member member) {
+        return loanRepository.getNumberOfCurrentLoansByMember(member);
+    }
+
+    public int getNumberOfOverdueLoansByMember(Member member) {
+        return loanRepository.getNumberOfOverdueLoansByMember(member);
+    }
+
+    public ArrayList<Loan> getCurrentLoansByMember(Member member) {
+        return loanRepository.getLoansByMember(member)
+                .stream()
+                .filter(loan -> loan.getReturnDate() == null)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ArrayList<Loan> getAllLoansByMember(Member member) {
+        return loanRepository.getLoansByMember(member);
     }
 
     public int returnLoan(Loan loan) {
-        int fine = calculateFine(loan);
+        int newFine = calculateFine(loan);
         try {
             loanRepository.returnLoan(loan);
-            System.out.println("You have returned " + loan.getBook().getTitle() + ".");
-            if (fine > 0) {
-                System.out.println("You have incurred a new fee of " + fine + ".");
-                fineService.createFine(loan, fine);
+            if (newFine > 0) {
+                fineService.createFine(loan, newFine);
             }
-            return fine;
+            return newFine;
         } catch (LoanReturnException e){
             System.out.println("Could not return loan "+loan.getId()+".");
             System.out.println(e.getMessage());
@@ -72,15 +79,24 @@ public class LoanService {
         return 0;
     }
 
-    public int returnAllLoansForMember(int memberId){
-        ArrayList<Loan> loans = getCurrentLoansByMember(memberId);
+    public void renewLoan (Loan loan){
+        if(loan.getDueDate().isBefore(LocalDate.now())) {
+            throw (new LoanRenewException ("Can't renew loan " + loan.getId() + " because it is overdue."));
+        } else {
+            loanRepository.renewLoan(loan, newDueDate());
+        }
+    }
+
+    public int returnAllLoansForMember(Member member){
+        ArrayList<Loan> loans = getCurrentLoansByMember(member);
         int totalFines=0;
         for(Loan loan:loans) {
             try {
                 int newFine = returnLoan(loan);
                 System.out.println("You have returned " + loan.getBook().getTitle() + ".");
                 if (newFine>0){
-                    fineService.createFine(new Fine(loan, newFine));
+                    fineService.createFine(loan, newFine);
+                    totalFines+=newFine;
                 }
 
             }  catch (LoanReturnException e) {
@@ -89,28 +105,43 @@ public class LoanService {
             }
 
         }
+        return totalFines;
     }
 
-    public Loan getLoanByFineId(int fineId) {
-        Loan loan = loanRepository.getLoanByFineId(fineId);
-        fillWithBook(loan);
-        fillWithMember(loan);
+    public ArrayList<Loan> getLoansByBook (Book book) {
+        return loanRepository.getLoansByBook(book);
+    }
+
+    public Loan createLoan(Book book, Member member) {
+        Loan loan;
+        if(member.getStatus()=="active") {
+            int copies = book.getAvailableCopies();
+            if (copies>0) {
+                loan = new Loan (book, member, LocalDate.now(), newDueDate());
+                loan.setId(loanRepository.createLoan(loan));
+            } else {
+                throw(new LoanCreationException("No copies of book " + book.getBookId() + ": " + book.getTitle()+ " available."));
+            }
+        } else {
+            throw(new LoanCreationException("Membership status is " + member.getStatus() +"."));
+        }
         return loan;
     }
 
-    public void fillWithBook (Loan loan) {
-        loan.setBook(bookRepository.getBookByLoanId (loan.getId()));
-    }
-
-    public void fillWithMember(Loan loan) {
-        loan.setMember(memberRepository.getMemberByLoanId(loan.getId()));
-    }
-
     public int calculateFine(Loan loan){
-        return Rules.fineByMembershipType(loan.getMember().getMembershipType() * weeksOverdue(loan);
+        return Rules.fineByMembershipType(loan.getMember().getMembershipType()) * weeksOverdue(loan);
+    }
+
+    public ArrayList<String> topList(int length, LocalDate start, LocalDate end){
+        return loanRepository.topList(length, start, end);
     }
 
     public int weeksOverdue(Loan loan){
-        return (int) Math.ceil(DAYS.between(loan.getDueDate(), LocalDate.now())/7);
+        return (int) Math.ceil((double) DAYS.between(loan.getDueDate(), LocalDate.now()) /7);
+    }
+
+    public LocalDate newDueDate(){
+        LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        return firstMonday.plusWeeks(Rules.weeksByMembershipType(Main.loggedInUser.getMembershipType()));
     }
 }

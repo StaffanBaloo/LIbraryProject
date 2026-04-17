@@ -24,6 +24,19 @@ public class Note {
         this.isRead = isRead;
     }
 
+    public Note(Member member, Loan loan, String type) {
+        this.member = member;
+        this.loan = loan;
+        this.type = type;
+        switch (type) {
+            case "loan_reminder" -> this.message = "This is a reminder that your loan of "+loan.getBook().getTitle() +" is due in 1 week. Please return or renew on time.";
+            case "overdue_warning" -> this.message = "Your loan of "+loan.getBook().getTitle()+" is overdue. Please return the book as soon as possible to avoid additional fines.";
+            case "account_suspended" -> this.message = "Your account has been suspended due to unpaid fines and/or too-overdue loans. Please settle your balance and return overdue books to regain access.";
+        }
+        this.sentDate=LocalDate.now();
+        this.isRead = false;
+    }
+
     public Note(int noteId, String type, String message, LocalDate sentDate, boolean isRead) {
         this.noteId = noteId;
         this.type = type;
@@ -96,12 +109,15 @@ public class Note {
     public boolean isRead() {
         return isRead;
     }
+    public boolean isUnread() {
+        return !isRead;
+    }
 
     public void markRead() {
-        isRead = true;
+        this.isRead = true;
     }
 
     public void markUnread(){
-        isRead = false;
+        this.isRead = false;
     }
 }

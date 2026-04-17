@@ -1,8 +1,13 @@
 package note;
 
 import Repository;
+import book.Book;
+import exceptions.*;
+import loan.Loan;
+import member.Member;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class NoteRepository extends Repository {
 
@@ -10,13 +15,16 @@ public class NoteRepository extends Repository {
 
     }
 
-    public Note getById(int noteId){
+    public Note getNoteById(int noteId){
         Note note;
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-                SELECT id, member_id, loan_id, type, message, sent_date, is_read
-                FROM notifications
-                WHERE id = ?
+                SELECT *, m.*, l.*,b.*
+                FROM notifications n
+                JOIN members m on n.member_id = m.id
+                JOIN loans l on n.loan_id = l.id
+                JOIN books b on l.book_id = b.id
+                WHERE n.id = ?
             """)) {
             stmt.setInt(1, noteId);
             ResultSet rs =stmt.executeQuery();
@@ -30,15 +38,88 @@ public class NoteRepository extends Repository {
         return note;
     }
 
-    public integer getNumberUnreadNotesByMember((int memberId){
+    public ArrayList<Note> getNotesByMember(Member member) {
+        ArrayList<Note> notes = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                SELECT *, m.*, l.*,b.*
+                FROM notifications n
+                JOIN members m on n.member_id = m.id
+                JOIN loans l on n.loan_id = l.id
+                JOIN books b on l.book_id = b.id
+                WHERE n.id = ?
+            """)) {
+            stmt.setInt(1, member.getMemberId());
+            ResultSet rs =stmt.executeQuery();
+            while(rs.first()){
+                notes.add(mapRow(rs));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return notes;
+    }
+
+    public Note getOldestUnreadByMember(Member member){
         Note note;
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                SELECT *, m.*, l.*,b.*
+                FROM notifications n
+                JOIN members m on n.member_id = m.id
+                JOIN loans l on n.loan_id = l.id
+                JOIN books b on l.book_id = b.id
+                WHERE n.member_id = ? AND n.is_read = false
+                ORDER BY n.sent_date ASC
+                LIMIT 1;""")) {
+            stmt.setInt(1, member.getMemberId());
+            ResultSet rs =stmt.executeQuery();
+            if(rs.first()){
+                note = mapRow(rs);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return note;
+    }
+
+    public void createNote(Note note){
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                INSERT INTO notifications
+                    (member_id, loan_id, type, message, sent_date, is_read)
+                    VALUES (?, ?, ?, ?, ?, ?)""")) {
+            stmt.setInt(1, note.getMember().getMemberId());
+            stmt.setInt(2, note.getLoan().getId());
+            stmt.setString(3, note.getType());
+            stmt.setString(4, note.getMessage());
+            stmt.setDate(5, Date.valueOf(note.getSentDate()));
+            stmt.setBoolean(6, note.isRead());
+            ResultSet insertSet = stmt.getGeneratedKeys();
+            int insertRowCount = stmt.executeUpdate();
+            if(insertRowCount>0){
+                if(insertSet.next()){
+                    int newNoteId=insertSet.getInt("id");
+                    note.setNoteId(newNoteId);
+                }
+            } else {
+                throw new CantCreateNoteException("Could not create notification.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+    }
+
+    public int getNumberUnreadNotesByMember(Member member){
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT COUNT(*) as number
                 FROM notifications
                 WHERE member_id = ? AND is_read = false;
             """)) {
-            stmt.setInt(1, memberId);
+            stmt.setInt(1, member.getMemberId());
             ResultSet rs =stmt.executeQuery();
             if(rs.first()){
                 return rs.getInt("number");
@@ -47,14 +128,89 @@ public class NoteRepository extends Repository {
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return null;
+        return 0;
+    }
+
+    public int getNumberNotesByMember(Member member){
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                SELECT COUNT(*) as number
+                FROM notifications
+                WHERE member_id = ?;
+            """)) {
+            stmt.setInt(1, member.getMemberId());
+            ResultSet rs =stmt.executeQuery();
+            if(rs.first()){
+                return rs.getInt("number");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public void markRead(Note note){
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                UPDATE notifications
+                SET is_read = true
+                WHERE id =?""")){
+            stmt.setInt(1, note.getNoteId());
+            stmt.executeUpdate();
+        }catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+    }
+
+    public void markUnread(Note note){
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("""
+                UPDATE notifications
+                SET is_read = false
+                WHERE id =?""")){
+            stmt.setInt(1, note.getNoteId());
+            stmt.executeUpdate();
+        }catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
     }
 
     private Note mapRow(ResultSet rs) {
-        return new Note(rs.getInt("id"),
-                rs.getString("type"),
-                rs.getString("message"),
-                rs.getDate("sent_date").toLocalDate(),
-                rs.getBoolean("is_read"));
+        Note note;
+        try {
+            note = new Note(rs.getInt("id"),
+                    new Member(rs.getInt("m.id"),
+                            rs.getString("m.first_name"),
+                            rs.getString("m.last_name"),
+                            rs.getString("m.email"),
+                            rs.getString("m.membership_type"),
+                            rs.getString("m.status"),
+                            rs.getDate("m.membership_date").toLocalDate()),
+                    new Loan(rs.getInt("l.id"),
+                            new Book(rs.getInt("b.id"),
+                                    rs.getString("b.title"),
+                                    rs.getString("b.isbn"),
+                                    rs.getInt("b.year_published"),
+                                    rs.getInt("b.total_copies"),
+                                    rs.getInt("b.available_copies")),
+                            new Member(rs.getInt("m.id"),
+                                    rs.getString("m.first_name"),
+                                    rs.getString("m.last_name"),
+                                    rs.getString("m.email"),
+                                    rs.getString("m.membership_type"),
+                                    rs.getString("m.status"),
+                                    rs.getDate("m.membership_date").toLocalDate()),
+                            rs.getDate("l.loan_date").toLocalDate(),
+                            rs.getDate("l.due_date").toLocalDate(),
+                            rs.getDate("l.return_date").toLocalDate()),
+                            rs.getString("n.type"),
+                            rs.getString("n.message"),
+                            rs.getDate("n.sent_date").toLocalDate(),
+                            rs.getBoolean("n.is_read"));
+        }catch (SQLException e) {
+            System.out.println("Fel: " + e.getMessage());
+        }
+        return note;
     }
 }
