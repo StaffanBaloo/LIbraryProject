@@ -10,39 +10,39 @@ public class BookListDTOService {
 
 
     public ArrayList<BookListDTO> getAllBooksList(){
-        return BookMapper.mapToListDTOs(bookService.getAllBooks());
+        return BookMapper.mapToBookListDTOs(bookService.getAllBooks());
     }
 
     public ArrayList<BookListDTO> getBookListByTitle(String searchTerm){
-        return BookMapper.mapToListDTOs(bookService.getBooksByTitle(searchTerm));
+        return BookMapper.mapToBookListDTOs(bookService.getBooksByTitle(searchTerm));
     }
 
     public ArrayList<BookListDTO> getAvailableBooksList(){
-        return BookMapper.mapToListDTOs(bookService.getAvailableBooks());
+        return BookMapper.mapToBookListDTOs(bookService.getAvailableBooks());
     }
 
     public ArrayList<BookListDTO> getBookListByAuthorId(int authorId){
-        return BookMapper.mapToListDTOs(bookService.getBooksByAuthorId(authorId));
+        return BookMapper.mapToBookListDTOs(bookService.getBooksByAuthorId(authorId));
     }
 
     public ArrayList<BookListDTO> getBookListByAuthorName(String searchTerm){
-        return BookMapper.mapToListDTOs(bookService.getBooksByAuthorName(searchTerm));
+        return BookMapper.mapToBookListDTOs(bookService.getBooksByAuthorName(searchTerm));
     }
 
     public ArrayList<BookListDTO> getBookListByCategoryId(int categoryId){
-        return BookMapper.mapToListDTOs(bookService.getBooksByCategoryId(categoryId));
+        return BookMapper.mapToBookListDTOs(bookService.getBooksByCategoryId(categoryId));
     }
 
     public ArrayList<BookListDTO> getBookListByCategory(String searchTerm){
-        return BookMapper.mapToListDTOs(bookService.getBooksByCategory(searchTerm));
+        return BookMapper.mapToBookListDTOs(bookService.getBooksByCategory(searchTerm));
     }
 
     public ArrayList<BookListDTO> getBookListByKeyword(String searchTerm){
-        return BookMapper.mapToListDTOs(bookService.getBooksByKeyword(searchTerm));
+        return BookMapper.mapToBookListDTOs(bookService.getBooksByKeyword(searchTerm));
     }
 
     public BookListDTO getBookById(int bookId) {
-        return BookMapper.mapToListDTO(bookService.getBookById(bookId));
+        return BookMapper.mapToBookListDTO(bookService.getBookById(bookId));
     }
 
 }

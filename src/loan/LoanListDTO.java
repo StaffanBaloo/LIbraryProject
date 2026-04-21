@@ -70,7 +70,7 @@ public class LoanListDTO {
     }
 
     public boolean isOverdue(){
-        return (LocalDate.now().isBefore(this.dueDate) && this.returnDate == null);
+        return (LocalDate.now().isAfter(this.dueDate) && this.returnDate == null);
     }
 
     @Override

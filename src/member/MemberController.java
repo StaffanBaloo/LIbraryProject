@@ -2,6 +2,9 @@ package member;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import loan.LoanListDTO;
+import loan.LoanListDTOService;
 import prime.Main;
 import prime.IO;
 import prime.ANSI;
@@ -9,8 +12,6 @@ import exceptions.CantCreateMemberException;
 import exceptions.MemberNotFoundException;
 import fine.Fine;
 import fine.FineService;
-import loan.Loan;
-import loan.LoanService;
 import org.apache.commons.validator.routines.EmailValidator;
 
 
@@ -275,13 +276,13 @@ public class MemberController {
     }
 
     public void showActiveLoans(Member member){
-        LoanService loanService = new LoanService();
-        ArrayList<Loan> loans = loanService.getCurrentLoansByMember(member);
+        LoanListDTOService loanListDTOService = new LoanListDTOService();
+        ArrayList<LoanListDTO> loans = loanListDTOService.getCurrentLoanListDTOsByMember(member);
         if (loans.isEmpty()){
             System.out.println(member.getFullName() + " har inga nuvarande lån.");
         } else {
             System.out.println("ID | Titel | Förfallodatum");
-            for(Loan loan : loans){
+            for(LoanListDTO loan : loans){
                 if(loan.isOverdue()){
                     System.out.println(ANSI.color("bright_red") + loan.getId() + " | " + loan.getBook().getTitle() + " | " + loan.getDueDate() + ANSI.reset());
                 } else {
@@ -292,13 +293,13 @@ public class MemberController {
     }
 
     public void showAllLoans(Member member){
-        LoanService loanService = new LoanService();
-        ArrayList<Loan> loans = loanService.getAllLoansByMember(member);
+        LoanListDTOService loanListDTOService = new LoanListDTOService();
+        ArrayList<LoanListDTO> loans = loanListDTOService.getAllLoanListDTOsByMember(member);
         if (loans.isEmpty()){
             System.out.println(member.getFullName() + " har inga lån.");
         } else {
             System.out.println("ID | Titel | Förfallodatum | Återlämningsdatum");
-            for(Loan loan : loans){
+            for(LoanListDTO loan : loans){
                 if(loan.isOverdue()){
                     System.out.println(ANSI.color("bright_red") + loan.getId() + " | " + loan.getBook().getTitle() + " | " + loan.getDueDate() + (loan.getReturnDate()==null ? "" : loan.getReturnDate()) + ANSI.reset());
                 } else {

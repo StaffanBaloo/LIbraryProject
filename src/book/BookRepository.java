@@ -3,6 +3,8 @@ package book;
 import java.sql.*;
 import java.util.ArrayList;
 
+import author.AuthorRepository;
+import category.CategoryRepository;
 import prime.Repository;
 import author.Author;
 import category.Category;
@@ -23,8 +25,8 @@ public class BookRepository extends Repository {
                 SELECT b.*, bd.*
                     FROM books b
                     JOIN book_descriptions bd ON b.id = bd.book_id
-                    WHERE b.total_copies>0;
-            """);
+                    WHERE b.total_copies>0
+                    ORDER BY b.id;""");
 
             // rs.next() går till nästa rad — returnerar false när det inte finns fler
             while(rs.next()) {
@@ -48,8 +50,8 @@ public class BookRepository extends Repository {
             ResultSet rs = stmt.executeQuery("""
                 SELECT b.*, bd.*
                     FROM books b
-                    JOIN book_descriptions bd ON b.id = bd.book_id;
-            """);
+                    JOIN book_descriptions bd ON b.id = bd.book_id
+                ORDER BY b.id;""");
 
             // rs.next() går till nästa rad — returnerar false när det inte finns fler
             while(rs.next()) {
@@ -70,8 +72,8 @@ public class BookRepository extends Repository {
                 SELECT b.*, bd.*
                     FROM books b
                     JOIN book_descriptions bd ON b.id = bd.book_id
-                    WHERE title LIKE ?;
-            """)) {
+                    WHERE title LIKE ?
+                    ORDER BY b.id""")) {
             stmt.setString(1, "%"+searchTerm+"%");
             ResultSet rs =stmt.executeQuery();
             while(rs.next()) {
@@ -88,11 +90,11 @@ public class BookRepository extends Repository {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT b.*, bd.*
-                    FROM books b
-                    JOIN book_descriptions bd ON b.id = bd.book_id
-                    JOIN book_authors ba ON b.id = ba.book_id
-                    WHERE ba.author_id = ?;
-            """)) {
+                FROM books b
+                JOIN book_descriptions bd ON b.id = bd.book_id
+                JOIN book_authors ba ON b.id = ba.book_id
+                WHERE ba.author_id = ?
+                ORDER BY b.id;""")) {
             stmt.setInt(1, authorId);
             ResultSet rs =stmt.executeQuery();
             while(rs.next()) {
@@ -113,8 +115,8 @@ public class BookRepository extends Repository {
                     JOIN book_descriptions bd ON b.id = bd.book_id
                     JOIN book_authors ba ON b.id = ba.book_id
                     JOIN authors a ON ba.author_id = a.id
-                    WHERE a.first_name LIKE ? OR a.last_name LIKE ?;
-            """)) {
+                    WHERE a.first_name LIKE ? OR a.last_name LIKE ?
+                    ORDER BY b.id;""")) {
             stmt.setString(1, "%"+searchTerm+"%");
             stmt.setString(2, "%"+searchTerm+"%");
             ResultSet rs =stmt.executeQuery();
@@ -135,8 +137,8 @@ public class BookRepository extends Repository {
                     FROM books b
                     JOIN book_descriptions bd ON b.id = bd.book_id
                     JOIN book_categories bc ON b.id = bc.book_id
-                    WHERE bc.category_id = ?;
-            """)) {
+                    WHERE bc.category_id = ?
+                    ORDER BY b.id;""")) {
             stmt.setInt(1, categoryId);
             ResultSet rs =stmt.executeQuery();
             while(rs.next()) {
@@ -157,8 +159,8 @@ public class BookRepository extends Repository {
                     JOIN book_descriptions bd ON b.id = bd.book_id
                     JOIN book_categories bc ON b.id = bc.book_id
                     JOIN categories c ON bc.category_id = c.id
-                    WHERE c.name LIKE ?;
-            """)) {
+                    WHERE c.name LIKE ?
+                    ORDER BY b.id;""")) {
             stmt.setString(1, "%"+searchTerm+"%");
             ResultSet rs =stmt.executeQuery();
             while(rs.next()) {
@@ -177,8 +179,8 @@ public class BookRepository extends Repository {
                 SELECT b.*, bd.*
                     FROM books b
                     JOIN book_descriptions bd ON b.id = bd.book_id
-                    WHERE bd.summary LIKE ?;
-            """)) {
+                    WHERE bd.summary LIKE ?
+                    ORDER BY b.id""")) {
             stmt.setString(1, "%"+searchTerm+"%");
             ResultSet rs =stmt.executeQuery();
             while(rs.next()) {
@@ -409,6 +411,8 @@ public class BookRepository extends Repository {
     }
 
     private Book mapRow(ResultSet rs) {
+        AuthorRepository authorRepository = new AuthorRepository();
+        CategoryRepository categoryRepository = new CategoryRepository();
         try {
             return new Book(rs.getInt("b.id"),
                     rs.getString("b.title"),
@@ -416,6 +420,8 @@ public class BookRepository extends Repository {
                     rs.getInt("b.year_published"),
                     rs.getInt("b.total_copies"),
                     rs.getInt("b.available_copies"),
+                    authorRepository.getAuthorsByBookId(rs.getInt("b.id")),
+                    categoryRepository.getCategoriesByBookId(rs.getInt("b.id")),
                     rs.getString("bd.summary"),
                     rs.getInt("bd.page_count"),
                     rs.getString("bd.language"));

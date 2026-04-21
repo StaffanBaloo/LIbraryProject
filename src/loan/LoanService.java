@@ -73,7 +73,7 @@ public class LoanService {
             }
             return newFine;
         } catch (LoanReturnException e){
-            System.out.println("Could not return loan "+loan.getId()+".");
+            System.out.println("Kunde inte återlämna lånet "+loan.getId()+".");
             System.out.println(e.getMessage());
         }
         return 0;
@@ -81,31 +81,10 @@ public class LoanService {
 
     public void renewLoan (Loan loan){
         if(loan.getDueDate().isBefore(LocalDate.now())) {
-            throw (new LoanRenewException ("Can't renew loan " + loan.getId() + " because it is overdue."));
+            throw (new LoanRenewException ("Kunde inte förnya lånet " + loan.getId() + " då det är förfallet."));
         } else {
             loanRepository.renewLoan(loan, newDueDate());
         }
-    }
-
-    public int returnAllLoansForMember(Member member){
-        ArrayList<Loan> loans = getCurrentLoansByMember(member);
-        int totalFines=0;
-        for(Loan loan:loans) {
-            try {
-                int newFine = returnLoan(loan);
-                System.out.println("You have returned " + loan.getBook().getTitle() + ".");
-                if (newFine>0){
-                    fineService.createFine(loan, newFine);
-                    totalFines+=newFine;
-                }
-
-            }  catch (LoanReturnException e) {
-                System.out.println("Could not return loan "+loan.getId()+".");
-                System.out.println(e.getMessage());
-            }
-
-        }
-        return totalFines;
     }
 
     public ArrayList<Loan> getLoansByBook (Book book) {
@@ -120,16 +99,17 @@ public class LoanService {
                 loan = new Loan (book, member, LocalDate.now(), newDueDate());
                 loan.setId(loanRepository.createLoan(loan));
             } else {
-                throw(new CantCreateLoanException("No copies of book " + book.getBookId() + ": " + book.getTitle()+ " available."));
+                throw(new CantCreateLoanException("Det finns inga exemplar av " + book.getBookId() + ": " + book.getTitle()+ " tillgängliga."));
             }
         } else {
-            throw(new CantCreateLoanException("Membership status is " + member.getStatus() +"."));
+            throw(new CantCreateLoanException("Medlemsstatus är " + member.getStatus() +"."));
         }
         return loan;
     }
 
     public int calculateFine(Loan loan){
-        return Rules.fineByMembershipType(loan.getMember().getMembershipType()) * weeksOverdue(loan);
+        //Calculates the fine for a loan as a base number based on membership type multiplied by the number of weeks overdue, with a ceiling defined in Rules.java.
+        return Math.min(Rules.fineByMembershipType(loan.getMember().getMembershipType()) * weeksOverdue(loan), Rules.maxFineByMembershipType(loan.getMember().getMembershipType()));
     }
 
     public ArrayList<String> topList(int length, LocalDate start, LocalDate end){

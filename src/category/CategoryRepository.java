@@ -16,7 +16,8 @@ public class CategoryRepository extends Repository {
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT * FROM categories
                 JOIN book_categories ON book_categories.category_id = categories.id
-                WHERE book_categories.book_id = ?;
+                WHERE book_categories.book_id = ?
+                ORDER BY id;
             """)) {
             stmt.setInt(1, bookId);
             ResultSet rs = stmt.executeQuery();
@@ -32,7 +33,7 @@ public class CategoryRepository extends Repository {
     public ArrayList<Category> getAllCategories(){
         ArrayList<Category> categories = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM categories;")){
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM categories ORDER BY id;")){
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 categories.add(mapRow(rs));
@@ -49,7 +50,8 @@ public class CategoryRepository extends Repository {
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT *
                 FROM categories
-                WHERE name LIKE ?;""")) {
+                WHERE name LIKE ?
+                ORDER by id;""")) {
             stmt.setString(1,name);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){

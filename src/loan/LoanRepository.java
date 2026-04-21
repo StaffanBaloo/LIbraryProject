@@ -50,11 +50,12 @@ public class LoanRepository extends Repository {
         ArrayList<Loan> loans = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-                SELECT *, m.*, b.*
-                FROM loans
-                JOIN members m on loans.member_id = m.id
-                JOIN books b on loans.book_id = b.id
-                WHERE member_id = ?""")){
+                SELECT l.*, m.*, b.*
+                FROM loans l
+                JOIN members m on l.member_id = m.id
+                JOIN books b on l.book_id = b.id
+                WHERE l.member_id = ?
+                ORDER BY l.loan_date""")){
             stmt.setInt(1, member.getMemberId());
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
@@ -70,10 +71,11 @@ public class LoanRepository extends Repository {
         ArrayList<Loan> loans = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-                SELECT *, m.*, b.*
-                FROM loans
-                JOIN members m on loans.member_id = m.id
-                JOIN books b on loans.book_id = b.id""")){
+                SELECT l.*, m.*, b.*
+                FROM loans l
+                JOIN members m on l.member_id = m.id
+                JOIN books b on l.book_id = b.id
+                ORDER BY l.loan_date""")){
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 loans.add(mapRow(rs));
@@ -88,11 +90,12 @@ public class LoanRepository extends Repository {
         ArrayList<Loan> loans = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-                SELECT *, m.*, b.*
-                FROM loans
-                JOIN members m on loans.member_id = m.id
-                JOIN books b on loans.book_id = b.id
-                WHERE return_date IS NULL""")){
+                SELECT l.*, m.*, b.*
+                FROM loans l
+                JOIN members m on l.member_id = m.id
+                JOIN books b on l.book_id = b.id
+                WHERE l.return_date IS NULL
+                ORDER BY l.loan_date""")){
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 loans.add(mapRow(rs));
@@ -107,11 +110,11 @@ public class LoanRepository extends Repository {
         ArrayList<Loan> loans = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-                SELECT *, m.*, b.*
-                FROM loans
-                JOIN members m on loans.member_id = m.id
-                JOIN books b on loans.book_id = b.id
-                WHERE return_date IS NULL AND due_date<CURDATE();""")){
+                SELECT l.*, m.*, b.*
+                FROM loans l
+                JOIN members m on l.member_id = m.id
+                JOIN books b on l.book_id = b.id
+                WHERE l.return_date IS NULL AND l.due_date<CURDATE();""")){
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 loans.add(mapRow(rs));
@@ -228,11 +231,11 @@ public class LoanRepository extends Repository {
         ArrayList<Loan> loans = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-                SELECT * FROM loans l
+                SELECT l.* FROM loans l
                 JOIN books b on l.book_id = b.id
                 JOIN members m on l.member_id = m.id
-                WHERE b.id=?;
-                """)) {
+                WHERE b.id=?
+                ORDER BY l.loan_date;""")) {
             stmt.setInt(1, book.getBookId());
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
@@ -306,7 +309,7 @@ public class LoanRepository extends Repository {
     private Loan mapRow (ResultSet rs) {
         Loan loan = null;
         try {
-            loan = new Loan(rs.getInt("id"),
+            loan = new Loan(rs.getInt("l.id"),
                     new Book(rs.getInt("b.id"),
                             rs.getString("b.title"),
                             rs.getString("b.isbn"),
@@ -320,9 +323,9 @@ public class LoanRepository extends Repository {
                             rs.getString("m.membership_type"),
                             rs.getString("m.status"),
                             DateConverter.toLocalDate(rs.getDate("m.membership_date"))),
-                    DateConverter.toLocalDate(rs.getDate("loan_date")),
-                    DateConverter.toLocalDate(rs.getDate("due_date")),
-                    DateConverter.toLocalDate(rs.getDate("return_date")));
+                    DateConverter.toLocalDate(rs.getDate("l.loan_date")),
+                    DateConverter.toLocalDate(rs.getDate("l.due_date")),
+                    DateConverter.toLocalDate(rs.getDate("l.return_date")));
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }

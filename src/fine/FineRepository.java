@@ -63,11 +63,12 @@ public class FineRepository extends Repository {
         ArrayList<Fine> fines = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
         PreparedStatement stmt = conn.prepareStatement("""
-            SELECT *, l.*, b.*, m.*
-            FROM fines
+            SELECT f.*, l.*, b.*, m.*
+            FROM fines f
             JOIN loans l ON l.id = loan_id
             JOIN books b ON b.id = l.book_id
-            JOIN members m on m.id = l.member_id;""")) {
+            JOIN members m on m.id = l.member_id
+            ORDER BY f.id;""")) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
                 fines.add(mapRow(rs));
@@ -82,12 +83,13 @@ public class FineRepository extends Repository {
         Fine fine = new Fine();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
-            SELECT *, l.*, b.*, m.*
+            SELECT f.*, l.*, b.*, m.*
             FROM fines f
             JOIN loans l ON l.id = loan_id
             JOIN books b ON b.id = l.book_id
             JOIN members m on m.id = l.member_id
-            WHERE f.id = ?;""")) {
+            WHERE f.id = ?
+            ORDER BY f.id;""")) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()){
@@ -184,7 +186,7 @@ public class FineRepository extends Repository {
 
     private Fine mapRow(ResultSet rs) {
         try {
-            return new Fine(rs.getInt("id"),
+            return new Fine(rs.getInt("f.id"),
                     new Loan(rs.getInt("l.id"),
                             new Book(rs.getInt("b.id"),
                                     rs.getString("b.title"),
@@ -202,10 +204,10 @@ public class FineRepository extends Repository {
                             DateConverter.toLocalDate(rs.getDate("l.loan_date")),
                             DateConverter.toLocalDate(rs.getDate("l.due_date")),
                             DateConverter.toLocalDate(rs.getDate("l.return_date"))),
-                    rs.getInt("amount"),
-                    DateConverter.toLocalDate(rs.getDate("issued_date")),
-                    DateConverter.toLocalDate(rs.getDate("paid_date")),
-                    rs.getString("status"));
+                    rs.getInt("f.amount"),
+                    DateConverter.toLocalDate(rs.getDate("f.issued_date")),
+                    DateConverter.toLocalDate(rs.getDate("f.paid_date")),
+                    rs.getString("f.status"));
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }

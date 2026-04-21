@@ -10,6 +10,7 @@ import member.Member;
 
 public class LoanController {
     LoanService loanService = new LoanService();
+    LoanListDTOService loanListDTOService = new LoanListDTOService();
 
     public LoanController() {
 
@@ -62,8 +63,8 @@ public class LoanController {
     public void showCurrentLoans(Member member){
         if (loanService.getNumberOfCurrentLoansByMember(member) >0) {
             System.out.println("Dina nuvarande lån är:");
-            ArrayList<Loan> loans = loanService.getCurrentLoansByMember(member);
-            for (Loan loan : loans) {
+            ArrayList<LoanListDTO> loans = loanListDTOService.getCurrentLoanListDTOsByMember(member);
+            for (LoanListDTO loan : loans) {
                 System.out.println(loan.toString());
             }
         }else {
@@ -72,9 +73,9 @@ public class LoanController {
     }
 
     public void showAllCurrentLoans(){
-        ArrayList<Loan> loans = loanService.getAllCurrentLoans();
+        ArrayList<LoanListDTO> loans = loanListDTOService.getAllCurrentLoanListDTOs();
         System.out.println("ID | Titel | Lånedatum | Förfallodatum");
-        for(Loan loan : loans){
+        for(LoanListDTO loan : loans){
             if(loan.isOverdue()){
                 System.out.println(ANSI.color("bright_red") + loan.getId() + " | " + loan.getBook().getTitle() + " | " + loan.getLoanDate() + " | " + loan.getDueDate() + ANSI.reset());
             } else {
@@ -84,9 +85,9 @@ public class LoanController {
     }
 
     public void showAllOverdueLoans(){
-        ArrayList<Loan> loans = loanService.getAllOverdueLoans();
+        ArrayList<LoanListDTO> loans =loanListDTOService.getAllOverdueLoanListDTOs();
         System.out.println("ID | Titel | M.ID | Medlemsnamn | Lånedatum | Förfallodatum");
-        for(Loan loan : loans){
+        for(LoanListDTO loan : loans){
             System.out.println(loan.getId() + " | " + loan.getBook().getTitle() + " | " + loan.getMember().getMemberId() + " | " + loan.getMember().getFullName() + loan.getLoanDate() + " | " + loan.getDueDate());
         }
     }
@@ -118,7 +119,7 @@ public class LoanController {
                         totalFees+=newFee;
                     }
                 }  catch (LoanRenewException e) {
-                    System.out.println("Kunde inte åtelämna lån "+loan.getId()+".");
+                    System.out.println("Kunde inte återlämna lån "+loan.getId()+".");
                     System.out.println(e.getMessage());
                 }
 

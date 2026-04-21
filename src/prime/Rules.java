@@ -12,6 +12,10 @@ public class Rules {
     //maximum days overdue for a standard/premium member before suspension.
     private final static int maxOverdueStandard = 14;
     private final static int maxOverduePremium = 28;
+    //maximum fine for overdue book. This is currently set to be the same irrespective of membership type, but could change.
+    private final static int maxFineStandard = 200;
+    private final static int maxFinePremium = 200;
+
 
     public static int fineByMembershipType(String type) {
         int fine = overdueFineStandard;
@@ -29,6 +33,12 @@ public class Rules {
         LocalDate limitDate = LocalDate.now().minusDays(maxOverdueStandard);
         if(type.equalsIgnoreCase("premium")) limitDate = LocalDate.now().minusDays(maxOverduePremium);
         return limitDate;
+    }
+
+    public static int maxFineByMembershipType(String type){
+        int maxFine = maxFineStandard;
+        if(type.equalsIgnoreCase("premium")) maxFine=maxFinePremium;
+        return maxFine;
     }
 
 }
