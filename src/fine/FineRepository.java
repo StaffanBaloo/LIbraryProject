@@ -9,6 +9,7 @@ import member.Member;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class FineRepository extends Repository {
 
@@ -79,8 +80,8 @@ public class FineRepository extends Repository {
         return fines;
     }
 
-    public Fine getFineById (int id){
-        Fine fine = new Fine();
+    public Optional<Fine> getFineById (int id){
+        Optional<Fine> maybeFine = Optional.empty();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
             SELECT f.*, l.*, b.*, m.*
@@ -93,12 +94,12 @@ public class FineRepository extends Repository {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()){
-                fine = mapRow(rs);
+                maybeFine = Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return fine;
+        return maybeFine;
     }
 
     public ArrayList<Fine> getAllFinesForMember (Member member){

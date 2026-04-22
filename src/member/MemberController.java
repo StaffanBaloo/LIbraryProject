@@ -1,6 +1,7 @@
 package member;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 
 import loan.LoanListDTO;
@@ -9,7 +10,6 @@ import prime.Main;
 import prime.IO;
 import prime.ANSI;
 import exceptions.CantCreateMemberException;
-import exceptions.MemberNotFoundException;
 import fine.Fine;
 import fine.FineService;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -64,10 +64,8 @@ public class MemberController {
                 case 3 -> showAllMembersByStatus("suspended");
                 case 4 -> showAllMembersByStatus("expired");
                 case 5->{
-                    Member member = askForMember();
-                    if (!(member==null)){
-                        showLibrarianMemberMenu(member);
-                    }
+                    Optional<Member> maybeMember = askForMember();
+                    if(maybeMember.isPresent()) showLibrarianMemberMenu(maybeMember.get());
                 }
                 case 6 -> createMember();
                 case 0 -> active = false;
@@ -328,18 +326,18 @@ public class MemberController {
         while (active) {
             System.out.println("Vänligen ange bot-ID (eller 0 för att gå tillbaka):");
             int id = IO.inputNumber();
-            if (id == 0){
+            if (id == 0) {
                 active = false;
             } else {
-                if (fineService.exists(id)) {
-                    Fine fine = fineService.getFineById(id);
-                    if(fine.getLoan().getMember().getMemberId() == member.getMemberId()){
+                Optional<Fine> maybeFine = fineService.getFineById(id);
+                if (maybeFine.isPresent()) {
+                    Fine fine = maybeFine.get();
+                    if (fine.getLoan().getMember().getMemberId() == member.getMemberId()) {
                         fineService.payFine(fine);
                         active = false;
                     } else {
-                        System.out.println("Bot " + id + " hör inte till " + member.getFullName() +".");
+                        System.out.println("Bot " + id + " hör inte till " + member.getFullName() + ".");
                     }
-
                 } else {
                     System.out.println("Kunde inte hitta någon bot med det ID:t.");
                 }
@@ -408,9 +406,9 @@ public class MemberController {
         return status;
     }
 
-    public Member askForMember(){
+    public Optional<Member> askForMember(){
         boolean active = true;
-        Member user = null;
+        Optional<Member> maybeUser = Optional.empty();
         MemberService memberService = new MemberService();
         EmailValidator emailValidator = EmailValidator.getInstance();
         while(active){
@@ -419,25 +417,22 @@ public class MemberController {
 
             if (IO.isNumeric (input)){
                 int id = Integer.parseInt(input);
-                if (memberService.exists(id)) {
-                    user = memberService.getById(Integer.parseInt(input));
+                Optional<Member> maybeMember = memberService.getById(id);
+                if(maybeMember.isPresent()) {
+                    maybeUser = maybeMember;
                     active = false;
-                } else {
-                    System.out.println("Kunde inte hitta medlem " + input + ".");
-                }
+                } else System.out.println("Kunde inte hitta medlem " + input + ".");
             } else if (emailValidator.isValid(input)) {
-                try {
-                    user = memberService.getByEmail(input);
-                    active=false;
-                } catch (MemberNotFoundException e) {
-                    System.out.println("Kunde inte hitta någon medlem med e-postadressen "+input + ".");
-                }
-
+                Optional<Member> maybeMember = memberService.getByEmail(input);
+                if(maybeMember.isPresent()){
+                    maybeUser = maybeMember;
+                    active = false;
+                } else System.out.println("Kunde inte hitta någon medlem med e-postadressen "+input + ".");
             } else {
                 System.out.println("Ogiltigt ID eller e-postadress.");
             }
         }
-        return user;
+        return maybeUser;
     }
 
 }

@@ -2,6 +2,7 @@ package member;
 
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class MemberService {
 
@@ -19,9 +20,10 @@ public class MemberService {
         return memberRepository.exists(memberId);
     }
 
-    public Member getById(int memberId){
-        return memberRepository.getById(memberId);
-
+    public Optional<Member> getById(int memberId){
+        Optional<Member> maybeMember = memberRepository.getById(memberId);
+        if(maybeMember.isPresent()) return maybeMember;
+        else return Optional.empty();
     }
 
     public void addMember(Member member) {
@@ -32,8 +34,10 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public Member getByEmail(String email){
-        return memberRepository.getByEmail(email);
+    public Optional<Member> getByEmail(String email){
+        Optional<Member> maybeMember = memberRepository.getByEmail(email);
+        if(maybeMember.isPresent()) return maybeMember;
+        else return Optional.empty();
     }
 
 }

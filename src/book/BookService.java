@@ -6,6 +6,7 @@ import exceptions.*;
 import loan.LoanRepository;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BookService {
@@ -24,16 +25,19 @@ public class BookService {
     }
 
     public void matchWithAuthorsCategories(ArrayList<Book> books){
+        // Fetch lists of all authors and categories, as well as junctions for connecting them to books.
         var authors = authorRepository.getAllAuthors();
         var categories = categoryRepository.getAllCategories();
         var bookAuthors = bookRepository.getBookAuthors();
         var bookCategories = bookRepository.getBookCategories();
+        //Create maps that map each entity's ID to the whole entity.
         var authorMap = authors.stream()
                 .collect(Collectors.toMap(Author::getId, author-> author));
         var categoryMap = categories.stream()
                 .collect(Collectors.toMap(Category::getId, category -> category));
         var bookMap = books.stream()
                 .collect(Collectors.toMap(Book::getBookId, book->book));
+        //For every "line" in bookAuthors and bookCategories, connect that book to that author/category.
         for (BookAuthor ba : bookAuthors){
             Book book = bookMap.get(ba.getBookId());
             Author author = authorMap.get(ba.getAuthorId());
@@ -68,14 +72,6 @@ public class BookService {
         return new ArrayList<>(getAllBooks().stream()
                 .filter(Book::isAvailable)
                 .toList());
-/*        ArrayList<Book> books = getAllBooks();
-        ArrayList<Book> availableBooks = new ArrayList<>();
-        for(Book book: books) {
-            if(book.getAvailableCopies()>0){
-                availableBooks.add(book);
-            }
-        }
-        return availableBooks;*/
     }
 
 
@@ -149,14 +145,8 @@ public class BookService {
         bookRepository.saveCategories(book);
     }
 
-    public Book getBookById(int bookId) {
-        Book book;
-        if(bookRepository.exists(bookId)) {
-            book = bookRepository.getBookById(bookId);
-        } else {
-            throw new BookDoesNotExistException ("Det finns ingen bok med ID "+bookId+ ".");
-        }
-        return book;
+    public Optional<Book> getBookById(int bookId) {
+        return bookRepository.getBookById(bookId);
     }
 
 

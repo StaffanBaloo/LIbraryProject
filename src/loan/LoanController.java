@@ -2,6 +2,8 @@ package loan;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
+
 import prime.Main;
 import prime.IO;
 import prime.ANSI;
@@ -144,20 +146,31 @@ public class LoanController {
         if (loanService.getNumberOfCurrentLoansByMember(member) >0) {
             System.out.println("Vilket lån vill du återlämna?");
             int loanId = IO.inputNumber();
-            try {
-                Loan loan = loanService.getLoanById(loanId);
-                int newFee = loanService.returnLoan(loan);
-                System.out.println("Du har återlämnat " + loan.getBook().getTitle() + ".");
-                if(newFee>0){
-                    System.out.println("Du har gått en ny bot på " + newFee + " kr.");
+            Optional<Loan> maybeLoan = loanService.getLoanById(loanId);
+            if (maybeLoan.isPresent()){
+                Loan loan = maybeLoan.get();
+                if (loan.getMember().getMemberId() == member.getMemberId()) {
+                    try {
+                        int newFee = loanService.returnLoan(loan);
+                        System.out.println("Du har återlämnat " + loan.getBook().getTitle() + ".");
+                        if (newFee > 0) {
+                            System.out.println("Du har fått en ny bot på " + newFee + " kr.");
+                        }
+                    } catch (LoanReturnException e) {
+                        System.out.println("Kunde inte återlämna den boken.");
+                        System.out.println(e.getMessage());
+                    }
+                } else {
+                    if(Main.loggedInUser==null) {
+                        System.out.println("Lånet tillhör inte " + member.getFullName()+".");
+                    } else {
+                        System.out.println("Det är inte du som lånat den boken.");
+                    }
                 }
-            } catch (LoanReturnException e) {
-                System.out.println("Kunde inte återlämna den boken.");
-                System.out.println(e.getMessage());
+            } else {
+                System.out.println("Det finns inget lån med ID " + loanId + ".");
             }
-        } else {
-            System.out.println("Du har inga lån att återlämna.");
-        }
+        } else System.out.println("Du har inga aktiva lån.");
     }
 
     void renewAllLoans(Member member){
@@ -182,15 +195,18 @@ public class LoanController {
         if (loanService.getNumberOfCurrentLoansByMember(member) >0) {
             System.out.println("Vilket lån vill du förnya?");
             int loanId = IO.inputNumber();
-            try {
-                Loan loan = loanService.getLoanById(loanId);
-                loanService.renewLoan(loan);
-                System.out.println("Du har förnyat ditt lån av " + loan.getBook().getTitle() + ".");
-                System.out.println("Det nya förfallodatumet är " + loanService.getLoanById(loanId).getDueDate() +".");
-            } catch (LoanRenewException e) {
-                System.out.println("Kunde inte förnya det lånet.");
-                System.out.println(e.getMessage());
-            }
+            Optional<Loan> maybeLoan = loanService.getLoanById(loanId);
+            if (maybeLoan.isPresent()){
+                try {
+                    Loan loan = maybeLoan.get();
+                    loanService.renewLoan(loan);
+                    System.out.println("Du har förnyat ditt lån av " + loan.getBook().getTitle() + ".");
+                    System.out.println("Det nya förfallodatumet är " + loan.getDueDate() + ".");
+                } catch (LoanRenewException e) {
+                    System.out.println("Kunde inte förnya det lånet.");
+                    System.out.println(e.getMessage());
+                }
+            } else System.out.println("Det finns inget lån med ID "+loanId+".");
         } else {
             System.out.println("Du har inga lån att förnya.");
         }

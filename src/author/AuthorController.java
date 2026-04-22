@@ -8,6 +8,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class AuthorController {
@@ -75,44 +76,47 @@ public class AuthorController {
                 active = false;
             } else if(id<1){
                 System.out.println("ID måste vara ett positivt heltal.");
-            } else if(!authorService.exists(id)) {
-                System.out.println("Det finns ingen författare med det ID:t.");
             } else {
-                Author author = authorService.getAuthorById(id);
-                boolean active2 = true;
-                while(active2) {
-                    System.out.println("Vilken information vill du redigera?");
-                    System.out.println("1. Förnamn: " + author.getFirstName());
-                    System.out.println("2. Efternamn: " + author.getLastName());
-                    System.out.println("3. Nationalitet: " + author.getNationality());
-                    System.out.println("4. Födelsedatum: " + author.getBirthDate());
-                    System.out.println("5. Biografi: " + author.getBiography());
-                    System.out.println("6. Webbsida: " + author.getWebsite());
-                    System.out.println("9. Spara och gå tillbaka.");
-                    System.out.println("0. Gå tillbaka utan att spara.");
-                    int choice = IO.inputNumber();
-                    switch (choice){
-                        case 1 -> author.setFirstName(askForFirstName());
-                        case 2 -> author.setLastName(askForLastName());
-                        case 3 -> author.setNationality(askForNationality());
-                        case 4 -> author.setBirthDate(askForBirthDate());
-                        case 5 -> author.setBiography(askForBiography());
-                        case 6 -> author.setWebsite(askForWebsite());
-                        case 9 -> {
-                            try {
-                                authorService.save(author);
+                Optional<Author> maybeAuthor = authorService.getAuthorById(id);
+                if(maybeAuthor.isPresent()){
+                    Author author = maybeAuthor.get();
+                    boolean active2 = true;
+                    while(active2) {
+                        System.out.println("Vilken information vill du redigera?");
+                        System.out.println("1. Förnamn: " + author.getFirstName());
+                        System.out.println("2. Efternamn: " + author.getLastName());
+                        System.out.println("3. Nationalitet: " + author.getNationality());
+                        System.out.println("4. Födelsedatum: " + author.getBirthDate());
+                        System.out.println("5. Biografi: " + author.getBiography());
+                        System.out.println("6. Webbsida: " + author.getWebsite());
+                        System.out.println("9. Spara och gå tillbaka.");
+                        System.out.println("0. Gå tillbaka utan att spara.");
+                        int choice = IO.inputNumber();
+                        switch (choice){
+                            case 1 -> author.setFirstName(askForFirstName());
+                            case 2 -> author.setLastName(askForLastName());
+                            case 3 -> author.setNationality(askForNationality());
+                            case 4 -> author.setBirthDate(askForBirthDate());
+                            case 5 -> author.setBiography(askForBiography());
+                            case 6 -> author.setWebsite(askForWebsite());
+                            case 9 -> {
+                                try {
+                                    authorService.save(author);
+                                    active2 = false;
+                                    active = false;
+                                    System.out.println("Sparat författare " + author.getFullName() + ".");
+                                } catch (CantSaveAuthorException e) {
+                                    System.out.println(e.getMessage());
+                                }
+                            }
+                            case 0 -> {
                                 active2 = false;
                                 active = false;
-                                System.out.println("Sparat författare " + author.getFullName() + ".");
-                            } catch (CantSaveAuthorException e) {
-                                System.out.println(e.getMessage());
                             }
                         }
-                        case 0 -> {
-                            active2 = false;
-                            active = false;
-                        }
                     }
+                } else {
+                    System.out.println("Det finns ingen författare med det ID:t.");
                 }
             }
         }
@@ -127,17 +131,20 @@ public class AuthorController {
                 active = false;
             } else if(id<1){
                 System.out.println("ID måste vara ett positivt heltal.");
-            } else if(!authorService.exists(id)) {
-                System.out.println("Det finns ingen författare med det ID:t.");
             } else {
                 active = false;
-                Author author = authorService.getAuthorById(id);
-                System.out.println("Förnamn: " + author.getFirstName());
-                System.out.println("Efternamn: " + author.getLastName());
-                System.out.println("Nationalitet: " + author.getNationality());
-                System.out.println("Födelsedatum: " + author.getBirthDate());
-                System.out.println("Biografi: " + author.getBiography());
-                System.out.println("Webbsida: " + author.getWebsite());
+                Optional<Author> maybeAuthor = authorService.getAuthorById(id);
+                if (maybeAuthor.isPresent()) {
+                    Author author = maybeAuthor.get();
+                    System.out.println("Förnamn: " + author.getFirstName());
+                    System.out.println("Efternamn: " + author.getLastName());
+                    System.out.println("Nationalitet: " + author.getNationality());
+                    System.out.println("Födelsedatum: " + author.getBirthDate());
+                    System.out.println("Biografi: " + author.getBiography());
+                    System.out.println("Webbsida: " + author.getWebsite());
+                } else {
+                    System.out.println("Det finns ingen författare med det ID:t.");
+                }
             }
         }
     }
@@ -229,28 +236,31 @@ public class AuthorController {
                 active = false;
             } else if(id<1){
                 System.out.println("ID måste vara ett positivt heltal.");
-            } else if(!authorService.exists(id)) {
-                System.out.println("Det finns ingen författare med det ID:t.");
             } else {
                 active = false;
-                Author author = authorService.getAuthorById(id);
-                System.out.println("Förnamn: " + author.getFirstName());
-                System.out.println("Efternamn: " + author.getLastName());
-                System.out.println("Nationalitet: " + author.getNationality());
-                System.out.println("Födelsedatum: " + author.getBirthDate());
-                System.out.println("Biografi: " + author.getBiography());
-                System.out.println("Webbsida: " + author.getWebsite());
-                System.out.println("Skriv \"RADERA\" med versaler för att radera författaren.");
-                String choice = scanner.nextLine().trim();
-                if(choice.equals("RADERA")) {
-                    try {
-                        authorService.delete(author);
-                        System.out.println(author.getFullName() + " raderad.");
-                    } catch (CantDeleteAuthorException e) {
-                        System.out.println(e.getMessage());
+                Optional<Author> maybeAuthor = authorService.getAuthorById(id);
+                if (maybeAuthor.isPresent()) {
+                    Author author = maybeAuthor.get();
+                    System.out.println("Förnamn: " + author.getFirstName());
+                    System.out.println("Efternamn: " + author.getLastName());
+                    System.out.println("Nationalitet: " + author.getNationality());
+                    System.out.println("Födelsedatum: " + author.getBirthDate());
+                    System.out.println("Biografi: " + author.getBiography());
+                    System.out.println("Webbsida: " + author.getWebsite());
+                    System.out.println("Skriv \"RADERA\" med versaler för att radera författaren.");
+                    String choice = scanner.nextLine().trim();
+                    if(choice.equals("RADERA")) {
+                        try {
+                            authorService.delete(author);
+                            System.out.println(author.getFullName() + " raderad.");
+                        } catch (CantDeleteAuthorException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } else {
+                        System.out.println("Författaren ej raderad.");
                     }
                 } else {
-                    System.out.println("Författaren ej raderad.");
+                    System.out.println("Det finns ingen författare med det ID:t.");
                 }
             }
         }

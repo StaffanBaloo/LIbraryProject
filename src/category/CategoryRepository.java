@@ -6,6 +6,7 @@ import exceptions.CantDeleteCategoryException;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 public class CategoryRepository extends Repository {
@@ -63,8 +64,7 @@ public class CategoryRepository extends Repository {
         return categories;
     }
 
-    public Category getCategoryById(int categoryId) {
-        Category category = null;
+    public Optional<Category> getCategoryById(int categoryId) {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT * FROM categories c
@@ -72,13 +72,13 @@ public class CategoryRepository extends Repository {
             """)) {
             stmt.setInt(1, categoryId);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                category = mapRow(rs);
-            }
+            if (rs.next()){
+                return Optional.of(mapRow(rs));
+            } else return Optional.empty();
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return category;
+        return Optional.empty();
     }
 
     public boolean exists(int categoryId) {

@@ -1,5 +1,6 @@
 package category;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class CategoryService {
     CategoryRepository categoryRepository = new CategoryRepository();
@@ -12,7 +13,7 @@ public class CategoryService {
         return categoryRepository.getCategoriesByPartialName(name);
     }
 
-    public Category getCategoryById(int categoryId){
+    public Optional<Category> getCategoryById(int categoryId){
         return categoryRepository.getCategoryById(categoryId);
     }
 

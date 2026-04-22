@@ -19,7 +19,7 @@ public class IO {
     // Läs in en rad och konvertera den till ett heltal om det går, annars klaga.
     public static int inputNumber() {
         boolean active=true;
-        int result =0;
+        int result =-1;
         while (active){
             String input = scanner.nextLine().trim();
             if(Objects.equals(input, "")){

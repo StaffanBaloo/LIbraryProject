@@ -5,14 +5,18 @@ import mapper.LoanMapper;
 import member.Member;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class LoanListDTOService {
     LoanRepository loanRepository = new LoanRepository();
     LoanService loanService = new LoanService();
 
 
-    public LoanListDTO getLoanListDTOById(int loanId) {
-        return LoanMapper.mapToLoanListDTO(loanService.getLoanById(loanId));
+    public Optional<LoanListDTO> getLoanListDTOById(int loanId) {
+        Optional<Loan> maybeLoan = loanService.getLoanById(loanId);
+        if(maybeLoan.isPresent()){
+            return Optional.of(LoanMapper.mapToLoanListDTO(maybeLoan.get()));
+        } else return Optional.empty();
     }
 
     public ArrayList<LoanListDTO> getAllLoanListDTOs() {

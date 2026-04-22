@@ -2,6 +2,7 @@ package book;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 import prime.IO;
 import prime.Main;
@@ -188,55 +189,61 @@ public class BookController {
     public void showDetailedInfo(){
         System.out.println("Vänligen ange bok-ID:");
         int searchId = IO.inputNumber();
-        if(bookService.exists(searchId)) {
-            Book book = bookService.getBookById(searchId);
-            System.out.println("Bok-ID: "+book.getBookId());
-            System.out.println("Titel: "+book.getTitle());
-            System.out.println("Författare: "+book.listAuthors());
+        Optional<Book> maybeBook = bookService.getBookById(searchId);
+        if(maybeBook.isPresent()) {
+            var book = maybeBook.get();
+            System.out.println("Bok-ID: " + book.getBookId());
+            System.out.println("Titel: " + book.getTitle());
+            System.out.println("Författare: " + book.listAuthors());
             System.out.println("Kategorier: " + book.listCategories());
             System.out.println("Sammanfattning: " + book.getSummary());
-            System.out.println("ISBN: "+book.getIsbn());
+            System.out.println("ISBN: " + book.getIsbn());
             System.out.println("Publikationsår: " + book.getYearPublished());
             System.out.println("Språk: " + book.getLanguage());
             System.out.println("Sidantal: " + book.getPageCount());
-            System.out.println("Exemplar: " + book.getAvailableCopies() + "/" +book.getTotalCopies());
-        }
-        else {
+            System.out.println("Exemplar: " + book.getAvailableCopies() + "/" + book.getTotalCopies());
+        } else {
             System.out.println("Hittade inte bok med ID " + searchId + ".");
         }
     }
 
     public void borrowBook(){
         System.out.println("Vänligen ange bok-ID:");
-        int bookId = Integer.parseInt(scanner.nextLine().trim());
-        try {
-            Book book = bookService.getBookById(bookId);
-            loanService.createLoan(book, Main.loggedInUser);
-        }
-        catch (CantCreateLoanException e) {
-            System.out.println("Du kan inte låna bok "+ bookId + ".");
-            System.out.println(e.getMessage());
+        int bookId = IO.inputNumber();
+        Optional<Book> maybeBook = bookService.getBookById(bookId);
+        if(maybeBook.isPresent()){
+            Book book = maybeBook.get();
+            try {
+                loanService.createLoan(book, Main.loggedInUser);
+            }
+            catch (CantCreateLoanException e) {
+                System.out.println("Du kan inte låna bok "+ bookId + ".");
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println("Hittade inte bok med ID " + bookId + ".");
         }
     }
 
     public void deleteBook(){
         System.out.println("Vänligen ange bok-ID:");
         int searchId = IO.inputNumber();
-        if(bookService.exists(searchId)) {
-            Book book = bookService.getBookById(searchId);
-            System.out.println("Bok-ID: "+book.getBookId());
-            System.out.println("Titel: "+book.getTitle());
-            System.out.println("Författare: "+book.listAuthors());
+        Optional<Book> maybeBook = bookService.getBookById(searchId);
+        if(maybeBook.isPresent()) {
+            Book book = maybeBook.get();
+            System.out.println("Bok-ID: " + book.getBookId());
+            System.out.println("Titel: " + book.getTitle());
+            System.out.println("Författare: " + book.listAuthors());
             System.out.println("Kategorier: " + book.listCategories());
             System.out.println("Sammanfattning: " + book.getSummary());
-            System.out.println("ISBN: "+book.getIsbn());
+            System.out.println("ISBN: " + book.getIsbn());
             System.out.println("Publikationsår: " + book.getYearPublished());
             System.out.println("Språk: " + book.getLanguage());
             System.out.println("Sidantal: " + book.getPageCount());
-            System.out.println("Exemplar: " + book.getAvailableCopies() + "/" +book.getTotalCopies());
-            System.out.println("Skriv \"RADERA\" med versaler för att radera författaren.");
+            System.out.println("Exemplar: " + book.getAvailableCopies() + "/" + book.getTotalCopies());
+            System.out.println("Skriv \"RADERA\" med versaler för att radera boken.");
             String choice = scanner.nextLine().trim();
-            if(choice.equals("RADERA")) {
+            if (choice.equals("RADERA")) {
                 try {
                     bookService.remove(book);
                     System.out.println(book.getTitle() + " raderad.");
@@ -244,12 +251,12 @@ public class BookController {
                     System.out.println(e.getMessage());
                 }
             } else {
-                System.out.println("Författaren ej raderad.");
+                System.out.println("Boken ej raderad.");
             }
+        } else {
+            System.out.println("Hittade inte bok med ID " + searchId + ".");
         }
-        else {
-            System.out.println("Hittade inte författare med ID " + searchId + ".");
-        }
+
     }
 
     public void addBook() {
@@ -284,85 +291,83 @@ public class BookController {
         ArrayList<Author> authors;
         ArrayList<Category> categories;
         Book book = null;
-        while (active) {
-            System.out.println("Vänligen ange bok-ID:");
-            int id = IO.inputNumber();
-            if (bookService.exists(id)) {
-                book = bookService.getBookById(id);
-                active = false;
-            } else {
-                System.out.println("Det finns ingen bok med det ID:t.");
-            }
-        }
-        active = true;
-        while (active) {
-            System.out.println("What do you wish to edit?");
-            System.out.println("1. Titel: " + book.getTitle());
-            System.out.println("2. ISBN: " + book.getIsbn());
-            System.out.println("3. Publikationsår: " + book.getYearPublished());
-            System.out.println("4. Antal exemplar: " + book.getTotalCopies());
-            System.out.println("5. Sammanfattning: " + book.getSummary());
-            System.out.println("6. Sidantal: " + book.getPageCount());
-            System.out.println("7. Språk: " + book.getLanguage());
-            System.out.println("8. Författare: " +book.listAuthors() + " (this will save the changes immediately)");
-            System.out.println("9. Kategorier: "+book.listCategories() + " (this will save the changes immediately)");
-            System.out.println("10. Spara och gå tillbaka.");
-            System.out.println("0. Gå tillbaka utan att spara.");
-            int choice = IO.inputNumber();
-            switch (choice){
-                case 1 ->{
-                    title = askForTitle();
-                    book.setTitle(title);
-                }
-                case 2 ->{
-                    isbn = askForISBN();
-                    book.setIsbn(isbn);
-                }
-                case 3 ->{
-                    yearPublished = askForYearPublished();
-                    book.setYearPublished(yearPublished);
-                }
-                case 4 ->{
-                    copies = askForCopies();
-                    int copiesChange = copies-book.getTotalCopies();
-                    book.setTotalCopies(copies);
-                    //Change available copies by the same amount as total copies, but with a minimum of 0.
-                    book.setAvailableCopies(Math.max(0, book.getAvailableCopies()+copiesChange));
-                    System.out.println("Det kommer nu att finnas "+book.getAvailableCopies()+ " exemplar tillgängliga av "+book.getTotalCopies()+".");
-                }
-                case 5 ->{
-                    summary = askForSummary();
-                    book.setSummary(summary);
-                }
-                case 6 ->{
-                    pageCount = askForPageCount();
-                    book.setPageCount(pageCount);
-                }
-                case 7 ->{
-                    language = askForLanguage();
-                    book.setLanguage(language);
-                }
-                case 8 -> {
-                    authors = askForAuthors(book.getAuthors());
-                    book.setAuthors(authors);
-                }
-                case 9 -> {
-                    categories = askForCategories(book.getCategories());
-                    book.setCategories(categories);
-                }
-                case 10 ->{
-                    try {
-                        bookService.save(book);
-                        bookService.saveAuthors(book);
-                        bookService.saveCategories(book);
-                    } catch (CantCreateBookException e) {
-                        System.out.println(e.getMessage());
+        System.out.println("Vänligen ange bok-ID:");
+        int id = IO.inputNumber();
+        Optional<Book> maybeBook = bookService.getBookById(id);
+        if(maybeBook.isPresent()){
+            book = maybeBook.get();
+            while (active) {
+                System.out.println("What do you wish to edit?");
+                System.out.println("1. Titel: " + book.getTitle());
+                System.out.println("2. ISBN: " + book.getIsbn());
+                System.out.println("3. Publikationsår: " + book.getYearPublished());
+                System.out.println("4. Antal exemplar: " + book.getTotalCopies());
+                System.out.println("5. Sammanfattning: " + book.getSummary());
+                System.out.println("6. Sidantal: " + book.getPageCount());
+                System.out.println("7. Språk: " + book.getLanguage());
+                System.out.println("8. Författare: " +book.listAuthors() + " (this will save the changes immediately)");
+                System.out.println("9. Kategorier: "+book.listCategories() + " (this will save the changes immediately)");
+                System.out.println("10. Spara och gå tillbaka.");
+                System.out.println("0. Gå tillbaka utan att spara.");
+                int choice = IO.inputNumber();
+                switch (choice){
+                    case 1 ->{
+                        title = askForTitle();
+                        book.setTitle(title);
                     }
-                    active = false;
+                    case 2 ->{
+                        isbn = askForISBN();
+                        book.setIsbn(isbn);
+                    }
+                    case 3 ->{
+                        yearPublished = askForYearPublished();
+                        book.setYearPublished(yearPublished);
+                    }
+                    case 4 ->{
+                        copies = askForCopies();
+                        int copiesChange = copies-book.getTotalCopies();
+                        book.setTotalCopies(copies);
+                        //Change available copies by the same amount as total copies, but with a minimum of 0.
+                        book.setAvailableCopies(Math.max(0, book.getAvailableCopies()+copiesChange));
+                        System.out.println("Det kommer nu att finnas "+book.getAvailableCopies()+ " exemplar tillgängliga av "+book.getTotalCopies()+".");
+                    }
+                    case 5 ->{
+                        summary = askForSummary();
+                        book.setSummary(summary);
+                    }
+                    case 6 ->{
+                        pageCount = askForPageCount();
+                        book.setPageCount(pageCount);
+                    }
+                    case 7 ->{
+                        language = askForLanguage();
+                        book.setLanguage(language);
+                    }
+                    case 8 -> {
+                        authors = askForAuthors(book.getAuthors());
+                        book.setAuthors(authors);
+                    }
+                    case 9 -> {
+                        categories = askForCategories(book.getCategories());
+                        book.setCategories(categories);
+                    }
+                    case 10 ->{
+                        try {
+                            bookService.save(book);
+                            bookService.saveAuthors(book);
+                            bookService.saveCategories(book);
+                        } catch (CantCreateBookException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        active = false;
+                    }
+                    case 0 -> active = false;
                 }
-                case 0 -> active = false;
             }
+        } else {
+            System.out.println("Det finns ingen bok med det ID:t.");
         }
+
     }
 
     public ArrayList<Author> askForAuthors(ArrayList<Author> authors){
@@ -388,13 +393,14 @@ public class BookController {
                 case 1 -> {
                     System.out.println("Vänligen ange författar-ID:");
                     int id = IO.inputNumber();
-                    if (authorService.exists(id)) {
+                    Optional<Author> maybeAuthor = authorService.getAuthorById(id);
+                    if(maybeAuthor.isPresent()){
                         if(!existsInAuthorList(newAuthors,id)){
-                            newAuthors.add(authorService.getAuthorById(id));
+                            newAuthors.add(maybeAuthor.get());
                         } else {
                             System.out.println("Den författaren finns redan i listan.");
                         }
-                    } else {
+                    } else{
                         System.out.println("Det finns ingen författare med det ID:t.");
                     }
                 }
@@ -459,13 +465,14 @@ public class BookController {
                 case 1 -> {
                     System.out.println("Vänligen ange kategori-ID:");
                     int id = IO.inputNumber();
-                    if (categoryService.exists(id)) {
+                    Optional<Category> maybeCategory = categoryService.getCategoryById(id);
+                    if(maybeCategory.isPresent()){
                         if(!existsInCategoryList(newCategories,id)){
-                            newCategories.add(categoryService.getCategoryById(id));
+                            newCategories.add(maybeCategory.get());
                         } else {
                             System.out.println("Den kategorin finns redan i listan.");
                         }
-                    } else {
+                    } else{
                         System.out.println("Det finns ingen kategori med det ID:t.");
                     }
                 }

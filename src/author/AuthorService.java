@@ -1,6 +1,7 @@
 package author;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import book.Book;
 import book.BookListDTO;
@@ -50,7 +51,7 @@ public class AuthorService {
         return authorRepository.exists(authorId);
     }
 
-    public Author getAuthorById(int authorId) {
+    public Optional<Author> getAuthorById(int authorId) {
         return authorRepository.getAuthorById(authorId);
     }
 

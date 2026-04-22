@@ -7,6 +7,7 @@ import exceptions.CantSaveAuthorException;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class AuthorRepository extends Repository {
 
@@ -207,8 +208,7 @@ public class AuthorRepository extends Repository {
         }
     }
 
-    public Author getAuthorById(int authorId) {
-        Author author = null;
+    public Optional<Author> getAuthorById(int authorId) {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT * FROM authors a
@@ -217,13 +217,14 @@ public class AuthorRepository extends Repository {
             """)) {
             stmt.setInt(1, authorId);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                author = mapRow(rs);
+            if(rs.next()){
+                return Optional.of(mapRow(rs));
             }
+            else return Optional.empty();
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return author;
+        return Optional.empty();
     }
 
 

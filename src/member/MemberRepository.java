@@ -2,6 +2,7 @@ package member;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import prime.DateConverter;
 import prime.Repository;
@@ -73,42 +74,36 @@ public class MemberRepository extends Repository {
         return exists;
     }
 
-    public Member getByEmail(String mail){
-        Member member = null;
+    public Optional<Member> getByEmail(String mail){
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("SELECT * from members WHERE email=?;")) {
             stmt.setString(1, mail);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                member = mapRow(rs);
+                return Optional.of(mapRow(rs));
             } else {
-                throw (new MemberNotFoundException("Could not find member with email "+mail+"."));
+                return Optional.empty();
             }
 
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return member;
+        return Optional.empty();
     }
 
-    public Member getById(int memberId){
-        Member member = null;
+    public Optional<Member> getById(int memberId){
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("SELECT * from members WHERE id=?;")) {
             stmt.setInt(1, memberId);
             ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                member = mapRow(rs);
-            } else {
-                throw (new MemberNotFoundException("Could not find member with ID "+memberId+"."));
-            }
+            if (rs.next()) return Optional.of(mapRow(rs));
+            else return Optional.empty();
 
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return member;
+        return Optional.empty();
     }
 
     public void save(Member member) {

@@ -9,6 +9,7 @@ import member.Member;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class LoanRepository extends Repository {
 
@@ -125,7 +126,7 @@ public class LoanRepository extends Repository {
         return loans;
     }
 
-    public Loan getLoanById(int loanId) {
+    public Optional<Loan> getLoanById(int loanId) {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement("""
                 SELECT *, m.*, b.*
@@ -136,12 +137,12 @@ public class LoanRepository extends Repository {
             stmt.setInt(1, loanId);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                return mapRow(rs);
-            }
+                return Optional.of(mapRow(rs));
+            } else return Optional.empty();
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     public void returnLoan(Loan loan) {

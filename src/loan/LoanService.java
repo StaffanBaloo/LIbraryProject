@@ -13,6 +13,7 @@ import java.time.DayOfWeek.*;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -22,7 +23,7 @@ public class LoanService {
     LoanRepository loanRepository = new LoanRepository();
     FineService fineService = new FineService();
 
-    public Loan getLoanById(int loanId){
+    public Optional<Loan> getLoanById(int loanId){
         return loanRepository.getLoanById(loanId);
     }
 
@@ -84,6 +85,7 @@ public class LoanService {
             throw (new LoanRenewException ("Kunde inte förnya lånet " + loan.getId() + " då det är förfallet."));
         } else {
             loanRepository.renewLoan(loan, newDueDate());
+            loan.setDueDate(newDueDate());
         }
     }
 

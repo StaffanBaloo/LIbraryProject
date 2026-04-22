@@ -4,6 +4,7 @@ import loan.Loan;
 import member.Member;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class FineService {
     FineRepository fineRepository = new FineRepository();
@@ -32,7 +33,7 @@ public class FineService {
         return fineRepository.exists(id);
     }
 
-    public Fine getFineById(int id){
+    public Optional<Fine> getFineById(int id){
         return fineRepository.getFineById(id);
     }
 

@@ -5,6 +5,7 @@ import prime.Main;
 import member.Member;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class FineController {
     FineService fineService = new FineService();
@@ -48,16 +49,19 @@ public class FineController {
             int id = IO.inputNumber();
             if(id==0) {
                 active = false;
-            } else if (fineService.exists(id)){
-                Fine fine = fineService.getFineById(id);
-                if(member.getMemberId()==fine.getLoan().getMember().getMemberId()) {
-                    fineService.payFine(fine);
-                    active = false;
-                } else {
-                    System.out.println("Den boten hör inte till ett av dina lån.");
-                }
             } else {
-                System.out.println("Det finns ingen bot med ID "+id+".");
+                Optional<Fine> maybeFine = fineService.getFineById(id);
+                if(maybeFine.isPresent()) {
+                    Fine fine = maybeFine.get();
+                    if (member.getMemberId() == fine.getLoan().getMember().getMemberId()) {
+                        fineService.payFine(fine);
+                        active = false;
+                    } else {
+                        System.out.println("Den boten hör inte till ett av dina lån.");
+                    }
+                } else {
+                    System.out.println("Det finns ingen bot med ID "+id+".");
+                }
             }
         }
     }

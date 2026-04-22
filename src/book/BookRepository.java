@@ -2,6 +2,7 @@ package book;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import author.AuthorRepository;
 import category.CategoryRepository;
@@ -192,7 +193,7 @@ public class BookRepository extends Repository {
         return books;
     }
 
-    public Book getBookById(int bookId) {
+    public Optional<Book> getBookById(int bookId) {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
         PreparedStatement stmt = conn.prepareStatement("""
             SELECT b.*, bd.* FROM books b
@@ -201,15 +202,15 @@ public class BookRepository extends Repository {
             stmt.setInt(1, bookId);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                return mapSingleRow(rs);
+                return Optional.of(mapSingleRow(rs));
             }
             else {
-                return null;
+                return Optional.empty();
             }
         } catch (SQLException e) {
             System.out.println("Fel: " + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     public ArrayList<BookAuthor> getBookAuthors(){

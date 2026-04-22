@@ -3,6 +3,7 @@ package category;
 import exceptions.*;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 import prime.IO;
 
@@ -58,11 +59,12 @@ public class CategoryController {
             } else if(id<0){
                 System.out.println("ID måste vara ett positivt tal.");
             } else {
-                if (categoryService.exists(id)) {
-                    Category category = categoryService.getCategoryById(id);
+                active=false;
+                Optional<Category> maybeCategory = categoryService.getCategoryById(id);
+                if(maybeCategory.isPresent()){
+                    Category category = maybeCategory.get();
                     System.out.println("Namn: " + category.getName());
                     System.out.println("Beskrivning: " + category.getDescription());
-                    active=false;
                 } else {
                     System.out.println("Det finns ingen kategori med det ID:t.");
                 }
@@ -79,39 +81,40 @@ public class CategoryController {
                 active = false;
             } else if(id<1){
                 System.out.println("ID måste vara ett positivt tal.");
-            } else if(!categoryService.exists(id)) {
-                System.out.println("Det finns ingen kategori med det ID:t.");
             } else {
-                Category category = categoryService.getCategoryById(id);
-                boolean active2 = true;
-                while(active2) {
-                    System.out.println("Vilken information vill du redigera?");
-                    System.out.println("1. Namn: " + category.getName());
-                    System.out.println("2. Beskrivning:");
-                    System.out.println(category.getDescription());
-                    System.out.println("9. Avsluta och spara.");
-                    System.out.println("0. Avsluta utan att spara.");
-                    int choice = IO.inputNumber();
-                    switch (choice){
-                        case 1 -> category.setName(askForName());
-                        case 2 -> category.setDescription(askForDescription());
-                        case 9 -> {
-                            try {
-                                categoryService.save(category);
+                Optional<Category> maybeCategory = categoryService.getCategoryById(id);
+                if(maybeCategory.isPresent()){
+                    Category category = maybeCategory.get();
+                    boolean active2 = true;
+                    while(active2) {
+                        System.out.println("Vilken information vill du redigera?");
+                        System.out.println("1. Namn: " + category.getName());
+                        System.out.println("2. Beskrivning:");
+                        System.out.println(category.getDescription());
+                        System.out.println("9. Avsluta och spara.");
+                        System.out.println("0. Avsluta utan att spara.");
+                        int choice = IO.inputNumber();
+                        switch (choice){
+                            case 1 -> category.setName(askForName());
+                            case 2 -> category.setDescription(askForDescription());
+                            case 9 -> {
+                                try {
+                                    categoryService.save(category);
+                                    active2 = false;
+                                    active = false;
+                                    System.out.println("Category " + category.getName() + " saved.");
+                                } catch (CantSaveCategoryException e) {
+                                    System.out.println(e.getMessage());
+                                }
+                            }
+                            case 0 -> {
                                 active2 = false;
                                 active = false;
-                                System.out.println("Category " + category.getName() + " saved.");
-                            } catch (CantSaveCategoryException e) {
-                                System.out.println(e.getMessage());
                             }
+                            default -> System.out.println("Vänligen ange ett giltigt val.");
                         }
-                        case 0 -> {
-                            active2 = false;
-                            active = false;
-                        }
-                        default -> System.out.println("Vänligen ange ett giltigt val.");
                     }
-                }
+                } else System.out.println("Det finns ingen kategori med det ID:t.");
             }
         }
     }
@@ -137,25 +140,26 @@ public class CategoryController {
                 active = false;
             } else if(id<1){
                 System.out.println("ID måste vara ett positivt tal.");
-            } else if(!categoryService.exists(id)) {
-                System.out.println("Det finns ingen kategori med det ID:t.");
             } else {
+                Optional<Category> maybeCategory = categoryService.getCategoryById(id);
                 active = false;
-                Category category = categoryService.getCategoryById(id);
-                System.out.println("Namn: " + category.getName());
-                System.out.println("Beskrivning:");
-                System.out.println(category.getDescription());
-                System.out.println("Skriv \"RADERA\" med versaler för att radera kategorin.");
-                String choice = scanner.nextLine().trim();
-                if(choice.equals("RADERA")) {
-                    try {
-                        categoryService.delete(category);
-                        System.out.println(category.getName() + " raderad.");
-                    } catch (CantDeleteCategoryException e) {
-                        System.out.println(e.getMessage());
+                if(maybeCategory.isPresent()) {
+                    Category category = maybeCategory.get();
+                    System.out.println("Namn: " + category.getName());
+                    System.out.println("Beskrivning:");
+                    System.out.println(category.getDescription());
+                    System.out.println("Skriv \"RADERA\" med versaler för att radera kategorin.");
+                    String choice = scanner.nextLine().trim();
+                    if (choice.equals("RADERA")) {
+                        try {
+                            categoryService.delete(category);
+                            System.out.println(category.getName() + " raderad.");
+                        } catch (CantDeleteCategoryException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } else {
+                        System.out.println("Kategorin raderades inte.");
                     }
-                } else {
-                    System.out.println("Kategorin raderades inte.");
                 }
             }
         }

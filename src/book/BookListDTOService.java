@@ -3,6 +3,7 @@ package book;
 import mapper.BookMapper;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class BookListDTOService {
     BookService bookService = new BookService();
@@ -41,8 +42,13 @@ public class BookListDTOService {
         return BookMapper.mapToBookListDTOs(bookService.getBooksByKeyword(searchTerm));
     }
 
-    public BookListDTO getBookById(int bookId) {
-        return BookMapper.mapToBookListDTO(bookService.getBookById(bookId));
+    public Optional<BookListDTO> getBookById(int bookId) {
+        var maybeBook = bookService.getBookById(bookId);
+        if(maybeBook.isPresent()) {
+            return Optional.of(BookMapper.mapToBookListDTO(maybeBook.get()));
+        } else {
+            return Optional.empty();
+        }
     }
 
 }
