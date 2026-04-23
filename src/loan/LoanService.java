@@ -190,9 +190,7 @@ public class LoanService {
 
     public boolean checkLoanAgainstNoteReminderList(Loan loan, ArrayList<NoteReminderDTO> noteReminderDTOS) {
         //Checks to see if any of the noteDTOs in list are related to the loan. If so return true, if not false.
-        ArrayList<NoteReminderDTO> testList = noteReminderDTOS.stream()
-                .filter(noteReminderDTO -> noteReminderDTO.getLoanId()==loan.getId())
-                .collect(Collectors.toCollection(ArrayList::new));
-        return !testList.isEmpty();
+        boolean test = noteReminderDTOS.stream().anyMatch(noteReminderDTO -> noteReminderDTO.getLoanId()==loan.getId());
+        return test;
     }
 }
